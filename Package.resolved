@@ -1,5 +1,5 @@
 {
-  "originHash" : "6fdcd41b4d161653584cd0140a7fe4f2f0febe7683d3ceac2ca992f5d9afa1be",
+  "originHash" : "f31e6c3cf744ceeac40b932987c8407eb63abdb9d3112e7c4dbeb68e9167b1b2",
   "pins" : [
     {
       "identity" : "swiftlintplugins",
@@ -15,8 +15,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/scinfu/SwiftSoup.git",
       "state" : {
-        "revision" : "bba848db50462894e7fc0891d018dfecad4ef11e",
-        "version" : "2.8.7"
+        "revision" : "6b4930da67b462d3f200472c902dd016d37a554d",
+        "version" : "2.7.7"
       }
     },
     {
