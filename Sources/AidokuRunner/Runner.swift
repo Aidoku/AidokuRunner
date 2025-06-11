@@ -39,6 +39,9 @@ public protocol Runner: Sendable {
 
 // default implementation for optional methods
 public extension Runner {
+    var partialHomePublisher: SinglePublisher<Home>? { nil }
+    var partialMangaPublisher: SinglePublisher<Manga>? { nil }
+
     func processPageImage(response _: Response, context _: PageContext?) throws -> PlatformImage? {
         throw SourceError.unimplemented
     }
