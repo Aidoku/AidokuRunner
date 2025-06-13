@@ -48,7 +48,7 @@ public final class Source: Sendable {
     }
 
     public var supportsAuthorSearch: Bool {
-        staticFilters.contains {
+        config?.supportsAuthorSearch ?? staticFilters.contains {
             if case .text = $0.value {
                 $0.id == "author"
             } else {
@@ -58,7 +58,7 @@ public final class Source: Sendable {
     }
 
     public var supportsArtistSearch: Bool {
-        staticFilters.contains {
+        config?.supportsArtistSearch ?? staticFilters.contains {
             if case .text = $0.value {
                 $0.id == "artist"
             } else {
