@@ -8,17 +8,17 @@
 import Foundation
 
 public struct DeepLinkResult: Sendable, Codable {
-    public let mangaId: String?
-    public let chapterId: String?
+    public let mangaKey: String?
+    public let chapterKey: String?
     public let listing: Listing?
 
     public init(
-        mangaId: String? = nil,
-        chapterId: String? = nil,
+        mangaKey: String? = nil,
+        chapterKey: String? = nil,
         listing: Listing? = nil
     ) {
-        self.mangaId = mangaId
-        self.chapterId = chapterId
+        self.mangaKey = mangaKey
+        self.chapterKey = chapterKey
         self.listing = listing
     }
 }
