@@ -284,9 +284,10 @@ public final class Source: Sendable {
                     let value = (genreFilter.ids ?? genreFilter.options)[index]
                     return .multiselect(id: filter.id, included: [value], excluded: [])
                 }
-            } else if case let .select(isGenre, _, options, _) = filter.value, isGenre {
-                if let index = options.firstIndex(where: { $0 == tag }) {
-                    return .select(id: filter.id, value: index)
+            } else if case let .select(genreFilter) = filter.value, genreFilter.isGenre {
+                if let index = genreFilter.options.firstIndex(where: { $0 == tag }) {
+                    let value = (genreFilter.ids ?? genreFilter.options)[index]
+                    return .select(id: filter.id, value: value)
                 }
             }
         }

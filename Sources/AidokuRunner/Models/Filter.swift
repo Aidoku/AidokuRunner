@@ -25,12 +25,7 @@ public struct Filter: Sendable, Hashable {
             canExclude: Bool,
             defaultValue: Bool?
         )
-        case select(
-            isGenre: Bool = false,
-            usesTagStyle: Bool,
-            options: [String],
-            defaultValue: Int?
-        )
+        case select(SelectFilter)
         case multiselect(MultiSelectFilter)
         case note(String)
     }
@@ -81,16 +76,7 @@ extension Filter: Codable {
                 let defaultValue = try container.decodeIfPresent(Bool.self, forKey: .defaultValue)
                 value = .check(name: name, canExclude: canExclude, defaultValue: defaultValue)
             case "select":
-                let isGenre = try container.decodeIfPresent(Bool.self, forKey: .isGenre) ?? false
-                let usesTagStyle = try container.decodeIfPresent(Bool.self, forKey: .usesTagStyle) ?? isGenre
-                let options = try container.decode([String].self, forKey: .options)
-                let defaultValue = try container.decodeIfPresent(Int.self, forKey: .defaultValue)
-                value = .select(
-                    isGenre: isGenre,
-                    usesTagStyle: usesTagStyle,
-                    options: options,
-                    defaultValue: defaultValue
-                )
+                value = .select(try SelectFilter(from: decoder))
             case "multi-select":
                 value = .multiselect(try MultiSelectFilter(from: decoder))
             case "note":
@@ -123,12 +109,9 @@ extension Filter: Codable {
                 try container.encodeIfPresent(name, forKey: .name)
                 try container.encodeIfPresent(canExclude, forKey: .canExclude)
                 try container.encodeIfPresent(defaultValue, forKey: .defaultValue)
-            case let .select(isGenre, usesTagStyle, options, defaultValue):
+            case let .select(filter):
                 try container.encode("select", forKey: .type)
-                try container.encodeIfPresent(isGenre, forKey: .isGenre)
-                try container.encodeIfPresent(usesTagStyle, forKey: .usesTagStyle)
-                try container.encode(options, forKey: .options)
-                try container.encodeIfPresent(defaultValue, forKey: .defaultValue)
+                try filter.encode(to: encoder)
             case .multiselect(let filter):
                 try container.encode("multi-select", forKey: .type)
                 try filter.encode(to: encoder)
@@ -157,6 +140,31 @@ extension Filter: Codable {
     }
 }
 
+public struct SelectFilter: Sendable, Hashable {
+    public let isGenre: Bool
+//    public let canExclude: Bool
+    public var usesTagStyle: Bool
+    public let options: [String]
+    public let ids: [String]?
+    public let defaultValue: String?
+
+    public init(
+        isGenre: Bool = false,
+//        canExclude: Bool = false,
+        usesTagStyle: Bool? = nil,
+        options: [String],
+        ids: [String]? = nil,
+        defaultValue: String? = nil
+    ) {
+        self.isGenre = isGenre
+//        self.canExclude = canExclude
+        self.usesTagStyle = usesTagStyle ?? isGenre
+        self.options = options
+        self.ids = ids
+        self.defaultValue = defaultValue
+    }
+}
+
 public struct MultiSelectFilter: Sendable, Hashable {
     public let isGenre: Bool
     public let canExclude: Bool
@@ -182,6 +190,37 @@ public struct MultiSelectFilter: Sendable, Hashable {
         self.ids = ids
         self.defaultIncluded = defaultIncluded
         self.defaultExcluded = defaultExcluded
+    }
+}
+
+extension SelectFilter: Codable {
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        isGenre = try container.decodeIfPresent(Bool.self, forKey: .isGenre) ?? false
+//        canExclude = try container.decodeIfPresent(Bool.self, forKey: .canExclude) ?? false
+        usesTagStyle = try container.decodeIfPresent(Bool.self, forKey: .usesTagStyle) ?? isGenre
+        options = try container.decode([String].self, forKey: .options)
+        ids = try container.decodeIfPresent([String].self, forKey: .ids)
+        defaultValue = try container.decodeIfPresent(String.self, forKey: .defaultValue)
+    }
+
+    public func encode(to encoder: any Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(isGenre, forKey: .isGenre)
+//        try container.encode(canExclude, forKey: .canExclude)
+        try container.encode(usesTagStyle, forKey: .usesTagStyle)
+        try container.encode(options, forKey: .options)
+        try container.encode(ids, forKey: .ids)
+        try container.encodeIfPresent(defaultValue, forKey: .defaultValue)
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case isGenre
+        case canExclude
+        case usesTagStyle
+        case options
+        case ids
+        case defaultValue = "default"
     }
 }
 

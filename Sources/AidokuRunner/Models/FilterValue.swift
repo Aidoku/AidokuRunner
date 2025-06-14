@@ -19,7 +19,7 @@ public enum FilterValue: Sendable, Hashable {
     case text(id: String, value: String)
     case sort(SortFilterValue)
     case check(id: String, value: Int)
-    case select(id: String, value: Int)
+    case select(id: String, value: String)
     case multiselect(id: String, included: [String], excluded: [String])
 }
 
@@ -107,7 +107,7 @@ extension FilterValue: Codable {
                 self = .check(id: id, value: value)
             case .select:
                 let id = try container.decode(String.self, forKey: .id)
-                let value = try container.decode(Int.self, forKey: .value)
+                let value = try container.decode(String.self, forKey: .value)
                 self = .select(id: id, value: value)
             case .multiselect:
                 let id = try container.decode(String.self, forKey: .id)
