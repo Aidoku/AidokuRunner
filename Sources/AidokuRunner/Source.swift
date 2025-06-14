@@ -47,20 +47,20 @@ public final class Source: Sendable {
         features.dynamicListings || !staticListings.isEmpty
     }
 
-    public var supportsAuthorSearch: Bool {
-        config?.supportsAuthorSearch ?? staticFilters.contains {
+    public var supportsArtistSearch: Bool {
+        config?.supportsArtistSearch ?? staticFilters.contains {
             if case .text = $0.value {
-                $0.id == "author"
+                $0.id == "artist"
             } else {
                 false
             }
         }
     }
 
-    public var supportsArtistSearch: Bool {
-        config?.supportsArtistSearch ?? staticFilters.contains {
+    public var supportsAuthorSearch: Bool {
+        config?.supportsAuthorSearch ?? staticFilters.contains {
             if case .text = $0.value {
-                $0.id == "artist"
+                $0.id == "author"
             } else {
                 false
             }
@@ -278,6 +278,10 @@ public final class Source: Sendable {
     }
 
     public func matchingGenreFilter(for tag: String) -> FilterValue? {
+        if config?.supportsTagSearch ?? false {
+            return .select(id: "genre", value: tag)
+        }
+
         for filter in staticFilters {
             if case let .multiselect(genreFilter) = filter.value, genreFilter.isGenre {
                 if let index = genreFilter.options.firstIndex(where: { $0 == tag }) {

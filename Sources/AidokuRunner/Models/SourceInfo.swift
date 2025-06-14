@@ -45,23 +45,26 @@ public struct SourceInfo: Sendable, Codable {
 
     public struct Configuration: Sendable, Codable {
         public var languageSelectType: LanguageSelectType?
-        public var supportsAuthorSearch: Bool?
         public var supportsArtistSearch: Bool?
+        public var supportsAuthorSearch: Bool?
+        public var supportsTagSearch: Bool?
         public var allowsBaseUrlSelect: Bool?
         public var breakingChangeVersion: Int?
         public var showSingleChapterPagePreviews: Bool? // todo: this isn't used
 
         public init(
             languageSelectType: LanguageSelectType? = nil,
-            supportsAuthorSearch: Bool? = nil,
             supportsArtistSearch: Bool? = nil,
+            supportsAuthorSearch: Bool? = nil,
+            supportsTagSearch: Bool? = nil,
             allowsBaseUrlSelect: Bool? = nil,
             breakingChangeVersion: Int? = nil,
             showSingleChapterPagePreviews: Bool? = nil
         ) {
             self.languageSelectType = languageSelectType
-            self.supportsAuthorSearch = supportsAuthorSearch
             self.supportsArtistSearch = supportsArtistSearch
+            self.supportsAuthorSearch = supportsAuthorSearch
+            self.supportsTagSearch = supportsTagSearch
             self.allowsBaseUrlSelect = allowsBaseUrlSelect
             self.breakingChangeVersion = breakingChangeVersion
             self.showSingleChapterPagePreviews = showSingleChapterPagePreviews
