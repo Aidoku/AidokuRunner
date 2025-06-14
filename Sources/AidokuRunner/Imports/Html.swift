@@ -35,6 +35,9 @@ struct Html: SourceLibrary {
         try? module.linkFunction(name: "set_html", namespace: Self.namespace, function: setHtml)
         try? module.linkFunction(name: "prepend", namespace: Self.namespace, function: prepend)
         try? module.linkFunction(name: "append", namespace: Self.namespace, function: append)
+        try? module.linkFunction(name: "parent", namespace: Self.namespace, function: parent)
+        try? module.linkFunction(name: "children", namespace: Self.namespace, function: children)
+        try? module.linkFunction(name: "siblings", namespace: Self.namespace, function: siblings)
         try? module.linkFunction(name: "next", namespace: Self.namespace, function: next)
         try? module.linkFunction(name: "previous", namespace: Self.namespace, function: previous)
         try? module.linkFunction(name: "base_uri", namespace: Self.namespace, function: baseUri)
@@ -276,6 +279,29 @@ extension Html {
 
 // MARK: `Element` functions
 extension Html {
+    func parent(descriptor: Int32) -> Int32 {
+        guard let element = store.fetch(from: descriptor) as? Element
+        else { return Result.invalidDescriptor.rawValue }
+
+        if let element = element.parent() {
+            return store.store(element)
+        }
+
+        return Result.noResult.rawValue
+    }
+
+    func children(descriptor: Int32) -> Int32 {
+        guard let element = store.fetch(from: descriptor) as? Element
+        else { return Result.invalidDescriptor.rawValue }
+        return store.store(element.children())
+    }
+
+    func siblings(descriptor: Int32) -> Int32 {
+        guard let element = store.fetch(from: descriptor) as? Element
+        else { return Result.invalidDescriptor.rawValue }
+        return store.store(element.siblingElements())
+    }
+
     func next(descriptor: Int32) -> Int32 {
         guard let element = store.fetch(from: descriptor) as? Element
         else { return Result.invalidDescriptor.rawValue }
