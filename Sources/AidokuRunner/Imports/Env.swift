@@ -13,7 +13,7 @@ struct Env: SourceLibrary {
 
     let module: Module
     let partialValueHandler: CallbackHandler
-    let printFunction: (String) -> Void
+    let printHandler: (String) -> Void
 
     func link() throws {
         try? module.linkFunction(name: "abort", namespace: Self.namespace, function: abort)
@@ -25,14 +25,14 @@ struct Env: SourceLibrary {
 
 extension Env {
     func abort() {
-        printFunction("Aborted")
+        printHandler("Aborted")
         Wasm3.yieldNext()
     }
 
     func envPrint(memory: Memory, offset: Int32, length: Int32) {
         guard offset >= 0, length >= 0 else { return }
         let string = try? memory.readString(offset: UInt32(offset), length: UInt32(length))
-        printFunction(string ?? "")
+        printHandler(string ?? "")
     }
 
     func sleep(seconds: Int32) {

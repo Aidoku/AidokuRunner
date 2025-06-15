@@ -20,6 +20,7 @@ struct Net: SourceLibrary {
 
     let module: Module
     let store: GlobalStore
+    let requestHandler: (@Sendable (URLRequest) async throws -> (Data, URLResponse))?
 
     private let rateLimit = RateLimit()
 
@@ -88,15 +89,20 @@ extension Net {
             }
         }.get()
 
-        struct RequestResult {
+        struct RequestResult: Sendable {
             var data: Data?
             var response: URLResponse?
             var error: Error?
         }
 
+        let requestHandler = requestHandler // capture request handler
         let result: RequestResult = BlockingTask {
             do {
-                let (data, response) = try await URLSession.shared.data(for: urlRequest)
+                let (data, response) = if let requestHandler {
+                    try await requestHandler(urlRequest)
+                } else {
+                    try await URLSession.shared.data(for: urlRequest)
+                }
                 return RequestResult(data: data, response: response, error: nil)
             } catch {
                 return RequestResult(data: nil, response: nil, error: error)
@@ -129,6 +135,7 @@ extension Net {
         }
 
         let rateLimit = rateLimit // capture rate limit actor
+        let requestHandler = requestHandler // capture request handler
         let (errors, requests) = BlockingTask {
             await withTaskGroup(of: (Int, NetRequest, Data?, URLResponse?).self) { group in
                 var errors = Array(repeating: Int32(0), count: Int(length))
@@ -153,7 +160,11 @@ extension Net {
                             shouldWait = !(await rateLimit.incRequest())
                         }
                         do {
-                            let (data, response) = try await URLSession.shared.data(for: urlRequest)
+                            let (data, response) = if let requestHandler {
+                                try await requestHandler(urlRequest)
+                            } else {
+                                try await URLSession.shared.data(for: urlRequest)
+                            }
                             return (idx, request, data, response)
                         } catch {
                             return (idx, request, nil, nil)

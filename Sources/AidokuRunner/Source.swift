@@ -102,7 +102,7 @@ public final class Source: Sendable {
 
     public init(
         url: URL,
-        printFunction: (@Sendable (String) -> Void)? = nil
+        interpreterConfig: InterpreterConfiguration = .init()
     ) async throws {
         guard url.isFileURL else { throw InitError.invalidUrl }
         var isDirectory = ObjCBool(false)
@@ -160,7 +160,11 @@ public final class Source: Sendable {
         }
         let data = try Data(contentsOf: executableUrl)
         let bytes = [UInt8](data)
-        self.runner = try await Interpreter(sourceKey: key, bytes: bytes, printFunction: printFunction)
+        self.runner = try await Interpreter(
+            sourceKey: key,
+            bytes: bytes,
+            config: interpreterConfig
+        )
 
         if runner.features.providesBaseUrl {
             if let baseUrl = try? await runner.getBaseUrl() {

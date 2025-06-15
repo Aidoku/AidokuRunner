@@ -8,10 +8,24 @@
 import Foundation
 import Wasm3
 
+public struct InterpreterConfiguration: Sendable {
+    let printHandler: (@Sendable (String) -> Void)?
+    let requestHandler: (@Sendable (URLRequest) async throws -> (Data, URLResponse))?
+
+    public init(
+        printHandler: (@Sendable (String) -> Void)? = nil,
+        requestHandler: (@Sendable (URLRequest) async throws -> (Data, URLResponse))? = nil
+    ) {
+        self.printHandler = printHandler
+        self.requestHandler = requestHandler
+    }
+}
+
 public actor Interpreter {
     private let sourceKey: String
     internal var module: Module
     private let store = GlobalStore()
+    private let config: InterpreterConfiguration
 
     public let features: SourceFeatures
 
@@ -24,7 +38,7 @@ public actor Interpreter {
         sourceKey: String,
         bytes: [UInt8],
         stackSize: UInt32 = 1024 * 200,
-        printFunction: ((String) -> Void)? = nil
+        config: InterpreterConfiguration = .init()
         // we call an isolated actor function (start) so this needs to be async despite the lint
         // swiftlint:disable:next async_without_await
     ) async throws {
@@ -32,16 +46,21 @@ public actor Interpreter {
         let env = try Environment()
         let runtime = try env.createRuntime(stackSize: stackSize)
         module = try runtime.parseAndLoadModule(bytes: bytes)
+        self.config = config
 
         // import functions (must be done before calling findFunction)
         try Env(
             module: module,
             partialValueHandler: partialValueHandler,
-            printFunction: printFunction ?? { print($0) }
+            printHandler: config.printHandler ?? { print($0) }
         ).link()
         try Std(module: module, store: store).link()
         try Defaults(module: module, store: store, defaultNamespace: sourceKey).link()
-        try Net(module: module, store: store).link()
+        try Net(
+            module: module,
+            store: store,
+            requestHandler: config.requestHandler
+        ).link()
         try Html(module: module, store: store).link()
         try JavaScript(module: module, store: store).link()
 #if canImport(UIKit)
