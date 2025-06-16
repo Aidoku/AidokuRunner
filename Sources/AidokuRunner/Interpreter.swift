@@ -255,8 +255,7 @@ extension Interpreter: Runner {
         let function = try module.findFunction(name: "get_filters")
         let result: Int32 = try function.call()
         let data = try handleResult(result: result)
-        // swiftlint:disable:next force_try
-        return try! PostcardDecoder().decode([Filter].self, from: data)
+        return try PostcardDecoder().decode([Filter].self, from: data)
     }
 
     public func getSettings() throws -> [Setting] {
