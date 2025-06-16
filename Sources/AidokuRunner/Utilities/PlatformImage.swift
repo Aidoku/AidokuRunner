@@ -22,23 +22,23 @@ public extension UIImage {
 import AppKit
 public typealias PlatformImage = NSImageFixed
 
-public struct NSImageFixed: @unchecked Sendable {
+public struct NSImageFixed: @unchecked Sendable, Hashable {
     public let image: NSImage
 
-    var size: NSSize {
+    public var size: NSSize {
         image.size
     }
 
-    init(_ image: NSImage) {
+    public init(_ image: NSImage) {
         self.image = image
     }
 
-    init?(data: Data) {
+    public init?(data: Data) {
         guard let image = NSImage(data: data) else { return nil }
         self.image = image
     }
 
-    func pngData() -> Data? {
+    public func pngData() -> Data? {
         guard
             let data = image.tiffRepresentation,
             let bitmap = NSBitmapImageRep(data: data)

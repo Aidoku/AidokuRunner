@@ -226,7 +226,7 @@ extension Interpreter: Runner {
         defer { store.remove(at: chapterPointer) }
         let result: Int32 = try function.call(mangaPointer, chapterPointer)
         let data = try handleResult(result: result)
-        return try PostcardDecoder().decode([Page].self, from: data)
+        return try PostcardDecoder().decode([PageCodable].self, from: data).compactMap { $0.into(store: store) }
     }
 
     public func processPageImage(response: Response, context: PageContext?) throws -> PlatformImage? {
@@ -299,7 +299,13 @@ extension Interpreter: Runner {
 
     public func getPageDescription(page: Page) throws -> String? {
         let function = try module.findFunction(name: "get_page_description")
-        let pagePointer = try store.storeEncoded(page)
+        let codablePage = page.codable(store: store)
+        defer {
+            if let pointer = codablePage.content.storePointer {
+                store.remove(at: pointer)
+            }
+        }
+        let pagePointer = try store.storeEncoded(codablePage)
         defer { store.remove(at: pagePointer) }
         let result: Int32 = try function.call(pagePointer)
         let data = try handleResult(result: result)
