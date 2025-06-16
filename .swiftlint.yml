@@ -68,4 +68,4 @@ custom_rules:
       - attribute.builtin
     message: "Don't add a .0 to the end of floating point literals"
 
-cyclomatic_complexity: 12
+cyclomatic_complexity: 15

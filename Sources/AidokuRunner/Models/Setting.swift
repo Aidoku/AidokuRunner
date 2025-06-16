@@ -21,7 +21,6 @@ enum SettingType: String, Codable {
     case page
     case editableList = "editable-list"
 
-    // swiftlint:disable:next cyclomatic_complexity
     init?(_ byteValue: UInt8) {
         switch byteValue {
             case 0: self = .group
@@ -405,11 +404,14 @@ extension Setting: Codable {
             case .select: value = .select(try SelectSetting(from: decoder))
             case .multiselect: value = .multiselect(try MultiSelectSetting(from: decoder))
             case .toggle: value = .toggle(try ToggleSetting(from: decoder))
+            case .stepper: value = .stepper(try StepperSetting(from: decoder))
+            case .segment: value = .segment(try SegmentSetting(from: decoder))
             case .text: value = .text(try TextSetting(from: decoder))
+            case .button: value = .button(try ButtonSetting(from: decoder))
+            case .link: value = .link(try LinkSetting(from: decoder))
             case .login: value = .login(try LoginSetting(from: decoder))
+            case .page: value = .page(try PageSetting(from: decoder))
             case .editableList: value = .editableList(try EditableListSetting(from: decoder))
-            default:
-                throw DecodingError.invalidType
         }
     }
 
@@ -431,11 +433,14 @@ extension Setting: Codable {
             case let .select(value): try value.encode(to: encoder)
             case let .multiselect(value): try value.encode(to: encoder)
             case let .toggle(value): try value.encode(to: encoder)
+            case let .stepper(value): try value.encode(to: encoder)
+            case let .segment(value): try value.encode(to: encoder)
             case let .text(value): try value.encode(to: encoder)
+            case let .button(value): try value.encode(to: encoder)
+            case let .link(value): try value.encode(to: encoder)
             case let .login(value): try value.encode(to: encoder)
+            case let .page(value): try value.encode(to: encoder)
             case let .editableList(value): try value.encode(to: encoder)
-            default:
-                throw DecodingError.invalidType
         }
     }
 
