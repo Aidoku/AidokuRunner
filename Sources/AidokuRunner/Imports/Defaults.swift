@@ -83,7 +83,9 @@ extension Defaults {
         do {
             let key = try memory.readString(offset: UInt32(keyPointer), length: UInt32(length))
 
-            guard let valueKind = DefaultKind(rawValue: UInt8(valueKind)) else { return -2 }
+            guard let valueKind = DefaultKind(rawValue: UInt8(valueKind)) else {
+                return Result.invalidValue.rawValue
+            }
 
             let getData = {
                 let pointer = UInt32(valuePointer)
@@ -110,7 +112,7 @@ extension Defaults {
 
             SettingsStore.shared.setValue(key: "\(defaultNamespace).\(key)", value: object)
 
-            return 0
+            return Result.success.rawValue
         } catch {
             return Result.failedDecoding.rawValue
         }
