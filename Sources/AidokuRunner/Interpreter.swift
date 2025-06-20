@@ -67,7 +67,8 @@ public actor Interpreter {
         try Canvas(module: module, store: store).link()
 #endif
 
-        let usesHome = (try? module.findFunction(name: "get_home")) != nil
+        let providesListings = (try? module.findFunction(name: "get_manga_list")) != nil
+        let providesHome = (try? module.findFunction(name: "get_home")) != nil
         let dynamicFilters = (try? module.findFunction(name: "get_filters")) != nil
         let dynamicSettings = (try? module.findFunction(name: "get_settings")) != nil
         let dynamicListings = (try? module.findFunction(name: "get_listings")) != nil
@@ -83,7 +84,8 @@ public actor Interpreter {
         let handlesMigration = (try? module.findFunction(name: "handle_id_migration")) != nil
 
         features = .init(
-            usesHome: usesHome,
+            providesListings: providesListings,
+            providesHome: providesHome,
             dynamicFilters: dynamicFilters,
             dynamicSettings: dynamicSettings,
             dynamicListings: dynamicListings,
@@ -111,6 +113,61 @@ public actor Interpreter {
 }
 
 extension Interpreter: Runner {
+    public func getSearchMangaList(query: String?, page: Int, filters: [FilterValue]) throws -> MangaPageResult {
+        let function = try module.findFunction(name: "get_search_manga_list")
+        let queryPointer = store.store(query ?? "")
+        defer { store.remove(at: queryPointer) }
+        let filterPointer = try store.storeEncoded(filters)
+        defer { store.remove(at: filterPointer) }
+
+        let result: Int32 = try function.call(queryPointer, page, filterPointer)
+        let data = try handleResult(result: result)
+        return try PostcardDecoder().decode(MangaPageResult.self, from: data)
+    }
+
+    public func getMangaUpdate(manga: Manga, needsDetails: Bool, needsChapters: Bool) async throws -> Manga {
+        let callbackId = await partialValueHandler.registerCallback { @Sendable _, data in
+            let manga = try? PostcardDecoder().decode(Manga.self, from: data)
+            guard let manga else { return nil }
+            await self.partialMangaPublisher?.send(manga)
+            return nil
+        }
+
+        let function = try module.findFunction(name: "get_manga_update")
+        let mangaPointer = try store.storeEncoded(manga)
+        defer {
+            store.remove(at: mangaPointer)
+        }
+        let result: Int32 = try function.call(mangaPointer, needsDetails ? 1 : 0, needsChapters ? 1 : 0)
+        let data = try handleResult(result: result)
+        await partialValueHandler.removeCallback(id: callbackId)
+        return try PostcardDecoder().decode(Manga.self, from: data)
+    }
+
+    public func getPageList(manga: Manga, chapter: Chapter) throws -> [Page] {
+        let function = try module.findFunction(name: "get_page_list")
+        var newManga = manga
+        newManga.chapters = nil
+        let mangaPointer = try store.storeEncoded(newManga)
+        defer { store.remove(at: mangaPointer) }
+        let chapterPointer = try store.storeEncoded(chapter)
+        defer { store.remove(at: chapterPointer) }
+        let result: Int32 = try function.call(mangaPointer, chapterPointer)
+        let data = try handleResult(result: result)
+        return try PostcardDecoder().decode([PageCodable].self, from: data).compactMap { $0.into(store: store) }
+    }
+
+    public func getMangaList(listing: Listing, page: Int) throws -> MangaPageResult {
+        let function = try module.findFunction(name: "get_manga_list")
+        let listingPointer = try store.storeEncoded(listing)
+        defer {
+            store.remove(at: listingPointer)
+        }
+        let result: Int32 = try function.call(listingPointer, page)
+        let data = try handleResult(result: result)
+        return try PostcardDecoder().decode(MangaPageResult.self, from: data)
+    }
+
     public func getHome() async throws -> Home {
         struct PartialValueHolder: Sendable {
             var currentHome: Home?
@@ -172,61 +229,6 @@ extension Interpreter: Runner {
             await partialValueHandler.removeCallback(id: callbackId)
             throw error
         }
-    }
-
-    public func getMangaList(listing: Listing, page: Int) throws -> MangaPageResult {
-        let function = try module.findFunction(name: "get_manga_list")
-        let listingPointer = try store.storeEncoded(listing)
-        defer {
-            store.remove(at: listingPointer)
-        }
-        let result: Int32 = try function.call(listingPointer, page)
-        let data = try handleResult(result: result)
-        return try PostcardDecoder().decode(MangaPageResult.self, from: data)
-    }
-
-    public func getSearchMangaList(query: String?, page: Int, filters: [FilterValue]) throws -> MangaPageResult {
-        let function = try module.findFunction(name: "get_search_manga_list")
-        let queryPointer = store.store(query ?? "")
-        defer { store.remove(at: queryPointer) }
-        let filterPointer = try store.storeEncoded(filters)
-        defer { store.remove(at: filterPointer) }
-
-        let result: Int32 = try function.call(queryPointer, page, filterPointer)
-        let data = try handleResult(result: result)
-        return try PostcardDecoder().decode(MangaPageResult.self, from: data)
-    }
-
-    public func getMangaUpdate(manga: Manga, needsDetails: Bool, needsChapters: Bool) async throws -> Manga {
-        let callbackId = await partialValueHandler.registerCallback { @Sendable _, data in
-            let manga = try? PostcardDecoder().decode(Manga.self, from: data)
-            guard let manga else { return nil }
-            await self.partialMangaPublisher?.send(manga)
-            return nil
-        }
-
-        let function = try module.findFunction(name: "get_manga_update")
-        let mangaPointer = try store.storeEncoded(manga)
-        defer {
-            store.remove(at: mangaPointer)
-        }
-        let result: Int32 = try function.call(mangaPointer, needsDetails ? 1 : 0, needsChapters ? 1 : 0)
-        let data = try handleResult(result: result)
-        await partialValueHandler.removeCallback(id: callbackId)
-        return try PostcardDecoder().decode(Manga.self, from: data)
-    }
-
-    public func getPageList(manga: Manga, chapter: Chapter) throws -> [Page] {
-        let function = try module.findFunction(name: "get_page_list")
-        var newManga = manga
-        newManga.chapters = nil
-        let mangaPointer = try store.storeEncoded(newManga)
-        defer { store.remove(at: mangaPointer) }
-        let chapterPointer = try store.storeEncoded(chapter)
-        defer { store.remove(at: chapterPointer) }
-        let result: Int32 = try function.call(mangaPointer, chapterPointer)
-        let data = try handleResult(result: result)
-        return try PostcardDecoder().decode([PageCodable].self, from: data).compactMap { $0.into(store: store) }
     }
 
     public func processPageImage(response: Response, context: PageContext?) throws -> PlatformImage? {

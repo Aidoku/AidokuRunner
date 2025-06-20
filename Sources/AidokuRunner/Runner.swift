@@ -13,11 +13,11 @@ public protocol Runner: Sendable {
     var partialHomePublisher: SinglePublisher<Home>? { get }
     var partialMangaPublisher: SinglePublisher<Manga>? { get }
 
-    func getMangaList(listing: Listing, page: Int) async throws -> MangaPageResult
     func getSearchMangaList(query: String?, page: Int, filters: [FilterValue]) async throws -> MangaPageResult
     func getMangaUpdate(manga: Manga, needsDetails: Bool, needsChapters: Bool) async throws -> Manga
     func getPageList(manga: Manga, chapter: Chapter) async throws -> [Page]
 
+    func getMangaList(listing: Listing, page: Int) async throws -> MangaPageResult
     func getHome() async throws -> Home
     func processPageImage(response: Response, context: PageContext?) async throws -> PlatformImage?
     func getSearchFilters() async throws -> [Filter]
@@ -41,6 +41,14 @@ public protocol Runner: Sendable {
 public extension Runner {
     var partialHomePublisher: SinglePublisher<Home>? { nil }
     var partialMangaPublisher: SinglePublisher<Manga>? { nil }
+
+    func getMangaList(listing _: Listing, page _: Int) throws -> MangaPageResult {
+        throw SourceError.unimplemented
+    }
+
+    func getHome() throws -> Home {
+        throw SourceError.unimplemented
+    }
 
     func processPageImage(response _: Response, context _: PageContext?) throws -> PlatformImage? {
         throw SourceError.unimplemented

@@ -8,7 +8,8 @@
 import Foundation
 
 public struct SourceFeatures: Sendable {
-    public let usesHome: Bool
+    public let providesListings: Bool
+    public let providesHome: Bool
     public let dynamicFilters: Bool
     public let dynamicSettings: Bool
     public let dynamicListings: Bool
@@ -24,7 +25,8 @@ public struct SourceFeatures: Sendable {
     public let handlesMigration: Bool
 
     public init(
-        usesHome: Bool = false,
+        providesListings: Bool = false,
+        providesHome: Bool = false,
         dynamicFilters: Bool = false,
         dynamicSettings: Bool = false,
         dynamicListings: Bool = false,
@@ -39,7 +41,8 @@ public struct SourceFeatures: Sendable {
         handlesWebLogin: Bool = false,
         handlesMigration: Bool = false
     ) {
-        self.usesHome = usesHome
+        self.providesListings = providesListings
+        self.providesHome = providesHome
         self.dynamicFilters = dynamicFilters
         self.dynamicSettings = dynamicSettings
         self.dynamicListings = dynamicListings

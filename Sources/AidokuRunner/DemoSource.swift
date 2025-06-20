@@ -94,7 +94,8 @@ public extension Source {
 
 final class DemoSourceRunner: Runner, Sendable {
     let features = SourceFeatures(
-        usesHome: true,
+        providesListings: true,
+        providesHome: true,
         providesPageDescriptions: true,
     )
 

@@ -39,7 +39,7 @@ public final class Source: Sendable {
 
     /// Indicates if a source should default to a search page instead of a home/listings page.
     public var onlySearch: Bool {
-        !features.usesHome && !hasListings
+        !features.providesHome && !hasListings
     }
 
     /// Indicates if a source contains any listings.
@@ -305,19 +305,6 @@ public final class Source: Sendable {
 }
 
 public extension Source {
-    func getHome() async throws -> Home {
-        guard runner.features.usesHome else {
-            throw SourceError.unimplemented
-        }
-        return try await runner.getHome()
-    }
-
-    func getMangaList(listing: Listing, page: Int) async throws -> MangaPageResult {
-        var result = try await runner.getMangaList(listing: listing, page: page)
-        result.setSourceKey(key)
-        return result
-    }
-
     func getSearchMangaList(query: String?, page: Int, filters: [FilterValue]) async throws -> MangaPageResult {
         var result = try await runner.getSearchMangaList(query: query, page: page, filters: filters)
         result.setSourceKey(key)
@@ -345,6 +332,22 @@ public extension Source {
 
     func getPageList(manga: Manga, chapter: Chapter) async throws -> [Page] {
         try await runner.getPageList(manga: manga, chapter: chapter)
+    }
+
+    func getMangaList(listing: Listing, page: Int) async throws -> MangaPageResult {
+        guard runner.features.providesListings else {
+            throw SourceError.unimplemented
+        }
+        var result = try await runner.getMangaList(listing: listing, page: page)
+        result.setSourceKey(key)
+        return result
+    }
+
+    func getHome() async throws -> Home {
+        guard runner.features.providesHome else {
+            throw SourceError.unimplemented
+        }
+        return try await runner.getHome()
     }
 
     func processPageImage(response: Response, context: PageContext?) async throws -> PlatformImage? {
