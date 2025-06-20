@@ -50,6 +50,7 @@ public struct SourceInfo: Sendable, Codable {
         public var supportsTagSearch: Bool?
         public var allowsBaseUrlSelect: Bool?
         public var breakingChangeVersion: Int?
+        public var hidesFiltersWhileSearching: Bool?
         public var showSingleChapterPagePreviews: Bool? // todo: this isn't used
 
         public init(
@@ -59,6 +60,7 @@ public struct SourceInfo: Sendable, Codable {
             supportsTagSearch: Bool? = nil,
             allowsBaseUrlSelect: Bool? = nil,
             breakingChangeVersion: Int? = nil,
+            hidesFiltersWhileSearching: Bool? = nil,
             showSingleChapterPagePreviews: Bool? = nil
         ) {
             self.languageSelectType = languageSelectType
@@ -67,6 +69,7 @@ public struct SourceInfo: Sendable, Codable {
             self.supportsTagSearch = supportsTagSearch
             self.allowsBaseUrlSelect = allowsBaseUrlSelect
             self.breakingChangeVersion = breakingChangeVersion
+            self.hidesFiltersWhileSearching = hidesFiltersWhileSearching
             self.showSingleChapterPagePreviews = showSingleChapterPagePreviews
         }
     }

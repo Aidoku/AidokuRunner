@@ -306,6 +306,11 @@ public final class Source: Sendable {
 
 public extension Source {
     func getSearchMangaList(query: String?, page: Int, filters: [FilterValue]) async throws -> MangaPageResult {
+        let filters: [FilterValue] = if let query, !query.isEmpty, config?.hidesFiltersWhileSearching ?? false {
+            []
+        } else {
+            filters
+        }
         var result = try await runner.getSearchMangaList(query: query, page: page, filters: filters)
         result.setSourceKey(key)
         return result
