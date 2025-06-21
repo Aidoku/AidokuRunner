@@ -38,6 +38,23 @@ public struct Filter: Sendable, Hashable {
             self.index = index
             self.ascending = ascending
         }
+
+        public init(from decoder: any Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            self.index = try container.decode(Int.self, forKey: .index)
+            self.ascending = (try? container.decode(Bool.self, forKey: .ascending)) ?? false
+        }
+
+        public func encode(to encoder: any Encoder) throws {
+            var container = encoder.container(keyedBy: CodingKeys.self)
+            try container.encode(index, forKey: .index)
+            try container.encode(ascending, forKey: .ascending)
+        }
+
+        enum CodingKeys: String, CodingKey {
+            case index
+            case ascending
+        }
     }
 
     public init(
