@@ -8,10 +8,18 @@
 import Foundation
 
 public struct Home: Sendable, Codable, Hashable {
-    public let components: [HomeComponent]
+    public var components: [HomeComponent]
 
     public init(components: [HomeComponent]) {
         self.components = components
+    }
+}
+
+extension Home {
+    mutating func setSourceKey(_ sourceKey: String) {
+        for i in 0..<components.count {
+            components[i].setSourceKey(sourceKey)
+        }
     }
 }
 
@@ -64,8 +72,8 @@ public struct HomeComponent: Sendable, Codable, Hashable {
         }
 
         public struct FilterItem: Sendable, Codable, Hashable {
-            public let title: String
-            public let values: [FilterValue]?
+            public var title: String
+            public var values: [FilterValue]?
 
             public init(title: String, values: [FilterValue]?) {
                 self.title = title
@@ -74,10 +82,10 @@ public struct HomeComponent: Sendable, Codable, Hashable {
         }
 
         public struct Link: Codable, Hashable, Sendable {
-            public let title: String
-            public let subtitle: String?
-            public let imageUrl: String?
-            public let value: LinkValue?
+            public var title: String
+            public var subtitle: String?
+            public var imageUrl: String?
+            public var value: LinkValue?
 
             public init(
                 title: String,
@@ -89,6 +97,19 @@ public struct HomeComponent: Sendable, Codable, Hashable {
                 self.imageUrl = imageUrl
                 self.subtitle = subtitle
                 self.value = value
+            }
+
+            mutating func setSourceKey(_ sourceKey: String) {
+                self.value = switch value {
+                    case .manga(let manga):
+                        .manga({
+                            var newManga = manga
+                            newManga.sourceKey = sourceKey
+                            return newManga
+                        }())
+                    default:
+                        self.value
+                }
             }
         }
 
@@ -236,6 +257,73 @@ public struct HomeComponent: Sendable, Codable, Hashable {
         self.title = title
         self.subtitle = subtitle
         self.value = value
+    }
+}
+
+extension HomeComponent {
+    mutating func setSourceKey(_ sourceKey: String) {
+        self.value = switch self.value {
+            case let .imageScroller(links, autoScrollInterval, width, height):
+                .imageScroller(
+                    links: links.map { link in
+                        var newLink = link
+                        newLink.setSourceKey(sourceKey)
+                        return newLink
+                    },
+                    autoScrollInterval: autoScrollInterval,
+                    width: width,
+                    height: height
+                )
+            case let .bigScroller(entries, autoScrollInterval):
+                .bigScroller(
+                    entries: entries.map { manga in
+                        var newManga = manga
+                        newManga.sourceKey = sourceKey
+                        return newManga
+                    },
+                    autoScrollInterval: autoScrollInterval
+                )
+            case let .scroller(entries, listing):
+                    .scroller(
+                        entries: entries.map { link in
+                            var newLink = link
+                            newLink.setSourceKey(sourceKey)
+                            return newLink
+                        },
+                        listing: listing
+                    )
+            case let .mangaList(ranking, pageSize, entries, listing):
+                .mangaList(
+                    ranking: ranking,
+                    pageSize: pageSize,
+                    entries: entries.map { link in
+                        var newLink = link
+                        newLink.setSourceKey(sourceKey)
+                        return newLink
+                    },
+                    listing: listing
+                )
+            case let .mangaChapterList(pageSize, entries, listing):
+                .mangaChapterList(
+                    pageSize: pageSize,
+                    entries: entries.map { mangaWithChapter in
+                        var newMangaWithChapter = mangaWithChapter
+                        newMangaWithChapter.manga.sourceKey = sourceKey
+                        return newMangaWithChapter
+                    },
+                    listing: listing
+                )
+            case .links(let array):
+                .links(
+                    array.map { link in
+                        var newLink = link
+                        newLink.setSourceKey(sourceKey)
+                        return newLink
+                    }
+                )
+            default:
+                self.value
+        }
     }
 }
 

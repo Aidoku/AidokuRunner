@@ -8,8 +8,8 @@
 import Foundation
 
 public struct MangaWithChapter: Sendable, Codable, Hashable {
-    public let manga: Manga
-    public let chapter: Chapter
+    public var manga: Manga
+    public var chapter: Chapter
 
     public init(manga: Manga, chapter: Chapter) {
         self.manga = manga

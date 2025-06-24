@@ -352,7 +352,9 @@ public extension Source {
         guard runner.features.providesHome else {
             throw SourceError.unimplemented
         }
-        return try await runner.getHome()
+        var result = try await runner.getHome()
+        result.setSourceKey(key)
+        return result
     }
 
     func processPageImage(response: Response, context: PageContext?) async throws -> PlatformImage? {

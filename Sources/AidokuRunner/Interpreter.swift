@@ -179,10 +179,12 @@ extension Interpreter: Runner {
             do {
                 let home = try PostcardDecoder().decode(HomePartialResult.self, from: data)
                 switch home {
-                    case let .layout(home):
+                    case var .layout(home):
+                        home.setSourceKey(self.sourceKey)
                         partial.currentHome = home
                         await self.partialHomePublisher?.send(home)
-                    case let .component(component):
+                    case var .component(component):
+                        component.setSourceKey(self.sourceKey)
                         if let currentHome = partial.currentHome {
                             // find the component in the current home (with the same title) and replace it
                             let index = currentHome.components.firstIndex { $0.title == component.title }
