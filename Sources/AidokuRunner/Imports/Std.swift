@@ -20,6 +20,7 @@ struct Std: SourceLibrary {
         try? module.linkFunction(name: "read_buffer", namespace: Self.namespace, function: readBuffer)
         try? module.linkFunction(name: "current_date", namespace: Self.namespace, function: currentDate)
         try? module.linkFunction(name: "utc_offset", namespace: Self.namespace, function: utcOffset)
+        try? module.linkFunction(name: "parse_date", namespace: Self.namespace, function: parseDate)
     }
 
     enum Result: Int32 {
@@ -27,6 +28,8 @@ struct Std: SourceLibrary {
         case invalidDescriptor = -1
         case invalidBufferSize = -2
         case failedMemoryWrite = -3
+        case invalidString = -4
+        case invalidDateString = -5
     }
 }
 
@@ -77,5 +80,55 @@ extension Std {
 
     func utcOffset() -> Int64 {
         -Int64(TimeZone.current.secondsFromGMT())
+    }
+
+    // swiftlint:disable:next function_parameter_count
+    func parseDate(
+        _ memory: Memory,
+        stringPtr: UInt32,
+        stringLength: UInt32,
+        formatPtr: UInt32,
+        formatLength: UInt32,
+        localePtr: UInt32,
+        localeLength: UInt32,
+        timeZonePtr: UInt32,
+        timeZoneLength: UInt32
+    ) -> Float64 {
+        guard
+            let string = try? memory.readString(offset: stringPtr, length: stringLength),
+            let format = try? memory.readString(offset: formatPtr, length: formatLength)
+        else {
+            return Float64(Result.invalidString.rawValue)
+        }
+        let locale: String? = if localeLength > 0 {
+            try? memory.readString(offset: localePtr, length: localeLength)
+        } else {
+            nil
+        }
+        let timeZone: String? = if timeZoneLength > 0 {
+            try? memory.readString(offset: timeZonePtr, length: timeZoneLength)
+        } else {
+            nil
+        }
+        let formatter = DateFormatter()
+        if let locale {
+            formatter.locale = if locale == "current" {
+                Locale.current
+            } else {
+                Locale(identifier: locale)
+            }
+        }
+        if let timeZone {
+            formatter.timeZone = if timeZone == "current" {
+                TimeZone.current
+            } else {
+                TimeZone(identifier: timeZone)
+            }
+        }
+        formatter.dateFormat = format
+        guard let date = formatter.date(from: string) else {
+            return Float64(Result.invalidDateString.rawValue)
+        }
+        return Float64(date.timeIntervalSince1970)
     }
 }
