@@ -76,9 +76,9 @@ public struct Manga: Sendable, Hashable, Codable {
 
     public func copy(from manga: Self) -> Self {
         .init(
-            sourceKey: manga.sourceKey,
-            key: manga.key,
-            title: manga.title,
+            sourceKey: manga.sourceKey.isEmpty ? sourceKey : manga.sourceKey,
+            key: manga.key.isEmpty ? key : manga.key,
+            title: manga.title.isEmpty ? title : manga.title,
             cover: manga.cover ?? cover,
             artists: manga.artists ?? artists,
             authors: manga.authors ?? authors,
