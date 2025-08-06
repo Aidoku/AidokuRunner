@@ -453,9 +453,9 @@ public extension Source {
         }
     }
 
-    func handleMigration(id: String, kind: IdKind) async throws -> String? {
+    func handleMigration(kind: KeyKind, mangaKey: String, chapterKey: String?) async throws -> String? {
         if runner.features.handlesMigration {
-            try await runner.handleMigration(id: id, kind: kind)
+            try await runner.handleMigration(kind: kind, mangaKey: mangaKey, chapterKey: chapterKey)
         } else {
             nil
         }

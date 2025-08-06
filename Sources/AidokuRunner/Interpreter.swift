@@ -279,13 +279,9 @@ extension Interpreter: Runner {
     public func getImageRequest(url: String, context: PageContext?) throws -> URLRequest {
         let function = try module.findFunction(name: "get_image_request")
         let responsePointer = try store.storeEncoded(url)
-        let contextPointer = if let context {
-            try store.storeEncoded(context)
-        } else {
-            Int32(-1)
-        }
+        defer { store.remove(at: responsePointer) }
+        let contextPointer = try store.storeOptionalEncoded(context)
         defer {
-            store.remove(at: responsePointer)
             if contextPointer >= 0 {
                 store.remove(at: contextPointer)
             }
@@ -381,13 +377,19 @@ extension Interpreter: Runner {
         return try PostcardDecoder().decode(Bool.self, from: data)
     }
 
-    public func handleMigration(id: String, kind: IdKind) throws -> String {
-        let function = try module.findFunction(name: "handle_id_migration")
+    public func handleMigration(kind: KeyKind, mangaKey: String, chapterKey: String?) throws -> String {
+        let function = try module.findFunction(name: "handle_key_migration")
 
-        let idPtr = try store.storeEncoded(id)
-        defer { store.remove(at: idPtr) }
+        let mangaKeyPtr = try store.storeEncoded(mangaKey)
+        defer { store.remove(at: mangaKeyPtr) }
+        let chapterKeyPtr = try store.storeOptionalEncoded(chapterKey)
+        defer {
+            if chapterKeyPtr >= 0 {
+                store.remove(at: chapterKeyPtr)
+            }
+        }
 
-        let result: Int32 = try function.call(idPtr, Int32(kind.rawValue))
+        let result: Int32 = try function.call(Int32(kind.rawValue), mangaKeyPtr, chapterKeyPtr)
         let data = try handleResult(result: result)
         return try PostcardDecoder().decode(String.self, from: data)
     }

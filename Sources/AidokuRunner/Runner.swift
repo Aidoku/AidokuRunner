@@ -31,7 +31,7 @@ public protocol Runner: Sendable {
     func handleDeepLink(url: String) async throws -> DeepLinkResult?
     func handleBasicLogin(key: String, username: String, password: String) async throws -> Bool
     func handleWebLogin(key: String, cookies: [String: String]) async throws -> Bool
-    func handleMigration(id: String, kind: IdKind) async throws -> String
+    func handleMigration(kind: KeyKind, mangaKey: String, chapterKey: String?) async throws -> String
 
     func store<T: Sendable>(value: T) async throws -> Int32
     func remove(value: Int32) async throws
@@ -98,7 +98,7 @@ public extension Runner {
         throw SourceError.unimplemented
     }
 
-    func handleMigration(id _: String, kind _: IdKind) throws -> String {
+    func handleMigration(kind _: KeyKind, mangaKey _: String, chapterKey _: String?) throws -> String {
         throw SourceError.unimplemented
     }
 

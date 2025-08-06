@@ -22,6 +22,14 @@ class GlobalStore {
         try store(PostcardEncoder().encode(item))
     }
 
+    func storeOptionalEncoded<T: Codable>(_ item: T?) throws -> Int32 {
+        if let item {
+            try store(PostcardEncoder().encode(item))
+        } else {
+            -1
+        }
+    }
+
     func fetch(from descriptor: Int32) -> Any? {
         storage[descriptor]
     }
