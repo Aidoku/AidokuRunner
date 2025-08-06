@@ -14,7 +14,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/Skittyblock/Wasm3", branch: "main"),
-        .package(url: "https://github.com/scinfu/SwiftSoup.git", exact: "2.7.7"),
+        .package(url: "https://github.com/scinfu/SwiftSoup.git", from: "2.10.1"),
         .package(url: "https://github.com/SimplyDanny/SwiftLintPlugins", from: "0.59.1")
     ],
     targets: [

@@ -1,5 +1,5 @@
 {
-  "originHash" : "f31e6c3cf744ceeac40b932987c8407eb63abdb9d3112e7c4dbeb68e9167b1b2",
+  "originHash" : "6975247d7e0ffe4d7ae4855fea18ca119842962802e7f5849c25984a8c89d041",
   "pins" : [
     {
       "identity" : "swiftlintplugins",
@@ -15,8 +15,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/scinfu/SwiftSoup.git",
       "state" : {
-        "revision" : "6b4930da67b462d3f200472c902dd016d37a554d",
-        "version" : "2.7.7"
+        "revision" : "04a5da442816f764b2a8513c38420b4e6605145b",
+        "version" : "2.10.1"
       }
     },
     {
@@ -25,7 +25,7 @@
       "location" : "https://github.com/Skittyblock/Wasm3",
       "state" : {
         "branch" : "main",
-        "revision" : "42b044199dee4ee3e69215bfba1ecf35724e1911"
+        "revision" : "565f4858aa59976ab27719ec02238524eb27030d"
       }
     }
   ],
