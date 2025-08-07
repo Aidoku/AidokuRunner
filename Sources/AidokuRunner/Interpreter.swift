@@ -81,7 +81,7 @@ public actor Interpreter {
         let handlesDeepLinks = (try? module.findFunction(name: "handle_deep_link")) != nil
         let handlesBasicLogin = (try? module.findFunction(name: "handle_basic_login")) != nil
         let handlesWebLogin = (try? module.findFunction(name: "handle_web_login")) != nil
-        let handlesMigration = (try? module.findFunction(name: "handle_id_migration")) != nil
+        let handlesMigration = (try? module.findFunction(name: "handle_key_migration")) != nil
 
         features = .init(
             providesListings: providesListings,
