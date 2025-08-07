@@ -13,6 +13,7 @@ enum FilterType: UInt8 {
     case check = 2
     case select = 3
     case multiselect = 4
+    case range = 5
 }
 
 public enum FilterValue: Sendable, Hashable {
@@ -21,6 +22,7 @@ public enum FilterValue: Sendable, Hashable {
     case check(id: String, value: Int)
     case select(id: String, value: String)
     case multiselect(id: String, included: [String], excluded: [String])
+    case range(id: String, from: Float?, to: Float?)
 }
 
 public extension FilterValue {
@@ -31,6 +33,7 @@ public extension FilterValue {
             case let .check(id, _): id
             case let .select(id, _): id
             case let .multiselect(id, _, _): id
+            case let .range(id, _, _): id
         }
     }
 }
@@ -80,6 +83,12 @@ extension FilterValue: Equatable {
                 } else {
                     false
                 }
+            case let .range(lhsId, lhsFrom, lhsTo):
+                if case let .range(rhsId, rhsFrom, rhsTo) = rhs {
+                    lhsId == rhsId && lhsFrom == rhsFrom && lhsTo == rhsTo
+                } else {
+                    false
+                }
         }
     }
 }
@@ -114,6 +123,11 @@ extension FilterValue: Codable {
                 let included = try container.decode([String].self, forKey: .included)
                 let excluded = try container.decode([String].self, forKey: .excluded)
                 self = .multiselect(id: id, included: included, excluded: excluded)
+            case .range:
+                let id = try container.decode(String.self, forKey: .id)
+                let from = try container.decodeIfPresent(Float.self, forKey: .from)
+                let to = try container.decodeIfPresent(Float.self, forKey: .to)
+                self = .range(id: id, from: from, to: to)
         }
     }
 
@@ -142,6 +156,11 @@ extension FilterValue: Codable {
                 try container.encode(id, forKey: .id)
                 try container.encode(included, forKey: .included)
                 try container.encode(excluded, forKey: .excluded)
+            case let .range(id, from, to):
+                try container.encode(FilterType.range.rawValue, forKey: .type)
+                try container.encode(id, forKey: .id)
+                try container.encodeIfPresent(from, forKey: .from)
+                try container.encodeIfPresent(to, forKey: .to)
         }
     }
 
@@ -157,5 +176,7 @@ extension FilterValue: Codable {
         case ascending
         case included
         case excluded
+        case from
+        case to
     }
 }

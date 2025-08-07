@@ -16,18 +16,23 @@ public struct Filter: Sendable, Hashable {
     public enum Value: Sendable, Hashable {
         case text(placeholder: String?)
         case sort(
-            canAscend: Bool,
+            canAscend: Bool = true,
             options: [String],
             defaultValue: SortDefault?
         )
         case check(
             name: String?,
-            canExclude: Bool,
+            canExclude: Bool = false,
             defaultValue: Bool?
         )
         case select(SelectFilter)
         case multiselect(MultiSelectFilter)
         case note(String)
+        case range(
+            min: Float?,
+            max: Float?,
+            decimal: Bool = false
+        )
     }
 
     public struct SortDefault: Sendable, Codable, Hashable {
@@ -98,6 +103,11 @@ extension Filter: Codable {
                 value = .multiselect(try MultiSelectFilter(from: decoder))
             case "note":
                 value = .note(try container.decode(String.self, forKey: .text))
+            case "range":
+                let min = try container.decodeIfPresent(Float.self, forKey: .min)
+                let max = try container.decodeIfPresent(Float.self, forKey: .max)
+                let decimal = try container.decodeIfPresent(Bool.self, forKey: .decimal) ?? false
+                value = .range(min: min, max: max, decimal: decimal)
             default:
                 throw DecodingError.dataCorruptedError(
                     forKey: .type,
@@ -113,12 +123,12 @@ extension Filter: Codable {
         try container.encodeIfPresent(title, forKey: .title)
         try container.encodeIfPresent(hideFromHeader, forKey: .hideFromHeader)
         switch value {
-            case .text(let placeholder):
+            case let .text(placeholder):
                 try container.encode("text", forKey: .type)
                 try container.encodeIfPresent(placeholder, forKey: .placeholder)
             case let .sort(canAscend, options, defaultValue):
                 try container.encode("sort", forKey: .type)
-                try container.encodeIfPresent(canAscend, forKey: .canAscend)
+                try container.encode(canAscend, forKey: .canAscend)
                 try container.encode(options, forKey: .options)
                 try container.encode(defaultValue, forKey: .defaultValue)
             case let .check(name, canExclude, defaultValue):
@@ -129,12 +139,17 @@ extension Filter: Codable {
             case let .select(filter):
                 try container.encode("select", forKey: .type)
                 try filter.encode(to: encoder)
-            case .multiselect(let filter):
+            case let .multiselect(filter):
                 try container.encode("multi-select", forKey: .type)
                 try filter.encode(to: encoder)
-            case .note(let note):
+            case let .note(note):
                 try container.encode("note", forKey: .type)
                 try container.encode(note, forKey: .text)
+            case let .range(min, max, decimal):
+                try container.encode("range", forKey: .type)
+                try container.encodeIfPresent(min, forKey: .min)
+                try container.encodeIfPresent(max, forKey: .max)
+                try container.encode(decimal, forKey: .decimal)
         }
     }
 
@@ -154,6 +169,9 @@ extension Filter: Codable {
         case ids
         case text
         case name
+        case min
+        case max
+        case decimal
     }
 }
 
