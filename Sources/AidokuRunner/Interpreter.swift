@@ -325,7 +325,7 @@ extension Interpreter: Runner {
         let function = try module.findFunction(name: "get_base_url")
         let result: Int32 = try function.call()
         let data = try handleResult(result: result)
-        return try PostcardDecoder().decode(String?.self, from: data).flatMap(URL.init)
+        return try URL(string: PostcardDecoder().decode(String.self, from: data))
     }
 
     public func handleNotification(notification: String) throws {
