@@ -20,6 +20,7 @@ enum SettingType: String, Codable {
     case login
     case page
     case editableList = "editable-list"
+    case custom
 
     init?(_ byteValue: UInt8) {
         switch byteValue {
@@ -35,6 +36,7 @@ enum SettingType: String, Codable {
             case 9: self = .login
             case 10: self = .page
             case 11: self = .editableList
+            case 12: self = .custom
             default: return nil
         }
     }
@@ -53,6 +55,7 @@ enum SettingType: String, Codable {
             case .login: 9
             case .page: 10
             case .editableList: 11
+            case .custom: 12
         }
     }
 }
@@ -80,6 +83,7 @@ public struct Setting: Sendable, Hashable {
         case login(LoginSetting)
         case page(PageSetting)
         case editableList(EditableListSetting)
+        case custom
     }
 
     public init(
@@ -116,6 +120,7 @@ extension Setting {
             case .login: .login
             case .page: .page
             case .editableList: .editableList
+            case .custom: .custom
         }
     }
 }
@@ -412,6 +417,7 @@ extension Setting: Codable {
             case .login: value = .login(try LoginSetting(from: decoder))
             case .page: value = .page(try PageSetting(from: decoder))
             case .editableList: value = .editableList(try EditableListSetting(from: decoder))
+            case .custom: value = .custom
         }
     }
 
@@ -441,6 +447,7 @@ extension Setting: Codable {
             case let .login(value): try value.encode(to: encoder)
             case let .page(value): try value.encode(to: encoder)
             case let .editableList(value): try value.encode(to: encoder)
+            case .custom: break
         }
     }
 
