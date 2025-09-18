@@ -184,27 +184,32 @@ public struct MultiSelectSetting: Sendable, Codable, Hashable {
 // MARK: Toggle
 public struct ToggleSetting: Sendable, Codable, Hashable {
     public let subtitle: String?
+    public var authToDisable: Bool?
     public var defaultValue: Bool?
 
-    public init(subtitle: String? = nil, defaultValue: Bool = false) {
+    public init(subtitle: String? = nil, authToDisable: Bool? = nil, defaultValue: Bool = false) {
         self.subtitle = subtitle
+        self.authToDisable = authToDisable
         self.defaultValue = defaultValue
     }
 
     public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.subtitle = try container.decodeIfPresent(String.self, forKey: .subtitle)
+        self.authToDisable = try container.decodeIfPresent(Bool.self, forKey: .authToDisable)
         self.defaultValue = (try? container.decode(Bool.self, forKey: .defaultValue)) ?? false
     }
 
     public func encode(to encoder: any Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encodeIfPresent(subtitle, forKey: .subtitle)
+        try container.encodeIfPresent(authToDisable, forKey: .authToDisable)
         try container.encode(defaultValue ?? false, forKey: .defaultValue)
     }
 
     enum CodingKeys: String, CodingKey {
         case subtitle
+        case authToDisable
         case defaultValue = "default"
     }
 }
@@ -352,10 +357,12 @@ public struct LoginSetting: Sendable, Codable, Hashable {
 public struct PageSetting: Sendable, Codable, Hashable {
     public let items: [Setting]
     public let inlineTitle: Bool?
+    public let authToOpen: Bool?
 
-    public init(items: [Setting], inlineTitle: Bool? = nil) {
+    public init(items: [Setting], inlineTitle: Bool = false, authToOpen: Bool = false) {
         self.items = items
         self.inlineTitle = inlineTitle
+        self.authToOpen = authToOpen
     }
 }
 
