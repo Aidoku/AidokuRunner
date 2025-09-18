@@ -358,11 +358,66 @@ public struct PageSetting: Sendable, Codable, Hashable {
     public let items: [Setting]
     public let inlineTitle: Bool?
     public let authToOpen: Bool?
+    public let icon: Icon?
 
-    public init(items: [Setting], inlineTitle: Bool = false, authToOpen: Bool = false) {
+    public init(
+        items: [Setting],
+        inlineTitle: Bool = false,
+        authToOpen: Bool = false,
+        icon: Icon? = nil
+    ) {
         self.items = items
         self.inlineTitle = inlineTitle
         self.authToOpen = authToOpen
+        self.icon = icon
+    }
+
+    public enum Icon: Codable, Sendable, Hashable {
+        case system(name: String, color: String, inset: Int = 5)
+        case url(String)
+
+        public init(from decoder: any Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            let type = try container.decode(String.self, forKey: .type)
+            switch type {
+                case "system":
+                    let name = try container.decode(String.self, forKey: .name)
+                    let color = try container.decode(String.self, forKey: .color)
+                    let inset = try container.decodeIfPresent(Int.self, forKey: .inset) ?? 5
+                    self = .system(name: name, color: color, inset: inset)
+                case "url":
+                    let url = try container.decode(String.self, forKey: .url)
+                    self = .url(url)
+                default:
+                    throw DecodingError.dataCorruptedError(
+                        forKey: .type,
+                        in: container,
+                        debugDescription: "Invalid icon type"
+                    )
+            }
+        }
+
+        public func encode(to encoder: any Encoder) throws {
+            var container = encoder.container(keyedBy: CodingKeys.self)
+            switch self {
+                case let .system(name, color, inset):
+                    try container.encode("system", forKey: .type)
+                    try container.encode(name, forKey: .name)
+                    try container.encode(color, forKey: .color)
+                    try container.encodeIfPresent(inset, forKey: .inset)
+                case let .url(url):
+                    try container.encode("url", forKey: .type)
+                    try container.encode(url, forKey: .url)
+            }
+        }
+
+        enum CodingKeys: CodingKey {
+            case type
+            case name
+            case color
+            case inset
+            case url
+        }
     }
 }
 
