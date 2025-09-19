@@ -68,7 +68,7 @@ public struct Setting: Sendable, Hashable {
     public var requiresFalse: String?
     public var refreshes: [String]
 
-    public let value: Value
+    public var value: Value
 
     public enum Value: Sendable, Hashable {
         case group(GroupSetting)
