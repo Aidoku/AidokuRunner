@@ -305,7 +305,7 @@ public struct ButtonSetting: Sendable, Codable, Hashable {
     public let confirmTitle: String?
     public let confirmText: String?
 
-    public init(destructive: Bool, confirmTitle: String?, confirmText: String?) {
+    public init(destructive: Bool = false, confirmTitle: String? = nil, confirmText: String? = nil) {
         self.destructive = destructive
         self.confirmTitle = confirmTitle
         self.confirmText = confirmText
@@ -317,7 +317,7 @@ public struct LinkSetting: Sendable, Codable, Hashable {
     public let url: String
     public let external: Bool?
 
-    public init(url: String, external: Bool?) {
+    public init(url: String, external: Bool? = nil) {
         self.url = url
         self.external = external
     }
