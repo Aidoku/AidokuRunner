@@ -140,21 +140,25 @@ public struct GroupSetting: Sendable, Codable, Hashable {
 public struct SelectSetting: Sendable, Codable, Hashable {
     public let values: [String]
     public let titles: [String]?
+    public let authToOpen: Bool?
     public let defaultValue: String?
 
     public init(
         values: [String],
         titles: [String]? = nil,
+        authToOpen: Bool? = nil,
         defaultValue: String? = nil
     ) {
         self.values = values
         self.titles = titles
+        self.authToOpen = authToOpen
         self.defaultValue = defaultValue
     }
 
     enum CodingKeys: String, CodingKey {
         case values
         case titles
+        case authToOpen
         case defaultValue = "default"
     }
 }
@@ -162,21 +166,25 @@ public struct SelectSetting: Sendable, Codable, Hashable {
 public struct MultiSelectSetting: Sendable, Codable, Hashable {
     public let values: [String]
     public let titles: [String]?
+    public let authToOpen: Bool?
     public let defaultValue: [String]?
 
     public init(
         values: [String],
         titles: [String]? = nil,
+        authToOpen: Bool? = nil,
         defaultValue: [String]? = nil
     ) {
         self.values = values
         self.titles = titles
+        self.authToOpen = authToOpen
         self.defaultValue = defaultValue
     }
 
     enum CodingKeys: String, CodingKey {
         case values
         case titles
+        case authToOpen
         case defaultValue = "default"
     }
 }
