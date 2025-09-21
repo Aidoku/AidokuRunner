@@ -367,17 +367,20 @@ public struct PageSetting: Sendable, Codable, Hashable {
     public let inlineTitle: Bool?
     public let authToOpen: Bool?
     public let icon: Icon?
+    public let info: String?
 
     public init(
         items: [Setting],
         inlineTitle: Bool = false,
         authToOpen: Bool = false,
-        icon: Icon? = nil
+        icon: Icon? = nil,
+        info: String? = nil
     ) {
         self.items = items
         self.inlineTitle = inlineTitle
         self.authToOpen = authToOpen
         self.icon = icon
+        self.info = info
     }
 
     public enum Icon: Codable, Sendable, Hashable {
