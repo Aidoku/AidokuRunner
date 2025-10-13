@@ -50,3 +50,16 @@ class GlobalStore {
         pointer += 1
     }
 }
+
+extension GlobalStore {
+    func fetchImage(from descriptor: Int32) -> PlatformImage? {
+        let result = fetch(from: descriptor)
+        if let image = result as? PlatformImage {
+            return image
+        } else if let data = result as? Data, let image = PlatformImage(data: data) {
+            return image
+        } else {
+            return nil
+        }
+    }
+}

@@ -125,7 +125,7 @@ extension Canvas {
         guard let context = (store.fetch(from: contextPtr) as? CGContextHolder)?.context else {
             return Result.invalidContext.rawValue
         }
-        guard let image = store.fetch(from: imagePtr) as? PlatformImage else {
+        guard let image = store.fetchImage(from: imagePtr) else {
             return Result.invalidImagePointer.rawValue
         }
 #if canImport(UIKit)
@@ -168,7 +168,7 @@ extension Canvas {
         guard let context = (store.fetch(from: contextPtr) as? CGContextHolder)?.context else {
             return Result.invalidContext.rawValue
         }
-        guard let image = store.fetch(from: imagePtr) as? PlatformImage else {
+        guard let image = store.fetchImage(from: imagePtr) else {
             return Result.invalidImagePointer.rawValue
         }
 #if canImport(UIKit)
@@ -419,7 +419,12 @@ extension Canvas {
     }
 
     func getImageData(imagePtr: Int32) -> Int32 {
-        guard let image = store.fetch(from: imagePtr) as? PlatformImage else {
+        let result = store.fetch(from: imagePtr)
+        guard let image = result as? PlatformImage else {
+            // return a copy of the data if this is already raw data
+            if let data = result as? Data {
+                return store.store(data)
+            }
             return Result.invalidImagePointer.rawValue
         }
         guard let data = image.pngData() else {
@@ -429,14 +434,14 @@ extension Canvas {
     }
 
     func getImageWidth(imagePtr: Int32) -> Float32 {
-        guard let image = store.fetch(from: imagePtr) as? PlatformImage else {
+        guard let image = store.fetchImage(from: imagePtr) else {
             return Float32(Result.invalidImagePointer.rawValue)
         }
         return Float32(image.size.width)
     }
 
     func getImageHeight(imagePtr: Int32) -> Float32 {
-        guard let image = store.fetch(from: imagePtr) as? PlatformImage else {
+        guard let image = store.fetchImage(from: imagePtr) else {
             return Float32(Result.invalidImagePointer.rawValue)
         }
         return Float32(image.size.height)
