@@ -14,6 +14,10 @@ struct NetRequest: Sendable {
         case put
         case head
         case delete
+        case patch
+        case options
+        case connect
+        case trace
 
         var stringValue: String {
             switch self {
@@ -22,6 +26,10 @@ struct NetRequest: Sendable {
                 case .put: "PUT"
                 case .head: "HEAD"
                 case .delete: "DELETE"
+                case .patch: "PATCH"
+                case .options: "OPTIONS"
+                case .connect: "CONNECT"
+                case .trace: "TRACE"
             }
         }
     }
