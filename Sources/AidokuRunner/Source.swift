@@ -207,6 +207,7 @@ public final class Source: Sendable {
                 key: languageSelectType == .single ? "language" : "languages",
                 title: languageSelectType == .single ? "LANGUAGE" : "LANGUAGES",
                 notification: nil,
+                refreshes: ["content"],
                 value: value
             )
 
