@@ -51,7 +51,6 @@ public struct SourceInfo: Sendable, Codable {
         public var allowsBaseUrlSelect: Bool?
         public var breakingChangeVersion: Int?
         public var hidesFiltersWhileSearching: Bool?
-        public var showSingleChapterPagePreviews: Bool? // todo: this isn't used
 
         public init(
             languageSelectType: LanguageSelectType? = nil,
@@ -60,8 +59,7 @@ public struct SourceInfo: Sendable, Codable {
             supportsTagSearch: Bool? = nil,
             allowsBaseUrlSelect: Bool? = nil,
             breakingChangeVersion: Int? = nil,
-            hidesFiltersWhileSearching: Bool? = nil,
-            showSingleChapterPagePreviews: Bool? = nil
+            hidesFiltersWhileSearching: Bool? = nil
         ) {
             self.languageSelectType = languageSelectType
             self.supportsArtistSearch = supportsArtistSearch
@@ -70,7 +68,6 @@ public struct SourceInfo: Sendable, Codable {
             self.allowsBaseUrlSelect = allowsBaseUrlSelect
             self.breakingChangeVersion = breakingChangeVersion
             self.hidesFiltersWhileSearching = hidesFiltersWhileSearching
-            self.showSingleChapterPagePreviews = showSingleChapterPagePreviews
         }
     }
 
@@ -85,7 +82,7 @@ public struct SourceInfo: Sendable, Codable {
     }
 }
 
-public enum SourceContentRating: Int, Sendable, Codable {
+public enum SourceContentRating: Int, Sendable, Codable, CaseIterable {
     case safe = 0
     case containsNsfw = 1
     case primarilyNsfw = 2

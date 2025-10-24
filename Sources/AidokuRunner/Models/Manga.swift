@@ -28,9 +28,9 @@ public struct Manga: Sendable, Hashable, Codable {
     /// Optional list of genres or tags (max: 255)
     public var tags: [String]?
     /// Publishing status of the manga
-    public var status: MangaStatus
+    public var status: PublishingStatus
     /// Content rating of the manga
-    public var contentRating: MangaContentRating
+    public var contentRating: ContentRating
     /// Preferred viewer type of the manga
     public var viewer: Viewer
     /// Ideal update strategy for the manga
@@ -50,8 +50,8 @@ public struct Manga: Sendable, Hashable, Codable {
         description: String? = nil,
         url: URL? = nil,
         tags: [String]? = nil,
-        status: MangaStatus = .unknown,
-        contentRating: MangaContentRating = .unknown,
+        status: PublishingStatus = .unknown,
+        contentRating: ContentRating = .unknown,
         viewer: Viewer = .unknown,
         updateStrategy: UpdateStrategy = .always,
         nextUpdateTime: Int? = nil,
@@ -95,7 +95,7 @@ public struct Manga: Sendable, Hashable, Codable {
     }
 }
 
-public enum MangaStatus: UInt8, Sendable, Codable {
+public enum PublishingStatus: UInt8, Sendable, Codable, CaseIterable {
     case unknown
     case ongoing
     case completed
@@ -103,14 +103,14 @@ public enum MangaStatus: UInt8, Sendable, Codable {
     case hiatus
 }
 
-public enum MangaContentRating: UInt8, Sendable, Codable {
+public enum ContentRating: UInt8, Sendable, Codable, CaseIterable {
     case unknown
     case safe
     case suggestive
     case nsfw
 }
 
-public enum Viewer: UInt8, Sendable, Codable {
+public enum Viewer: UInt8, Sendable, Codable, CaseIterable {
     case unknown
     case leftToRight
     case rightToLeft
