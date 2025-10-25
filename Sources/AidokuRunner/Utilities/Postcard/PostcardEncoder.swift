@@ -112,7 +112,7 @@ final class PostcardContainer {
     }
 }
 
-private struct PostcardEncoding: Encoder {
+struct PostcardEncoding: Encoder {
     fileprivate var data: PostcardContainer
 
     init(to encodedData: PostcardContainer = PostcardContainer()) {

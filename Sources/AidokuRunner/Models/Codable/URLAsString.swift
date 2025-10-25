@@ -23,11 +23,15 @@ public struct URLAsString: Codable, Hashable, Sendable {
 
     public func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
-        if let wrappedValue {
-            try container.encode(UInt8(1))
-            try container.encode(wrappedValue.absoluteString)
+        if encoder is PostcardEncoding {
+            if let wrappedValue {
+                try container.encode(UInt8(1))
+                try container.encode(wrappedValue.absoluteString)
+            } else {
+                try container.encode(UInt8(0))
+            }
         } else {
-            try container.encode(UInt8(0))
+            try container.encode(wrappedValue?.absoluteString)
         }
     }
 
