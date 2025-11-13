@@ -9,9 +9,9 @@ import Foundation
 
 public struct Listing: Sendable, Hashable {
     /// Unique identifier for the listing
-    public let id: String
+    public var id: String
     /// Title of the listing
-    public let name: String
+    public var name: String
     /// Type of listing
     public var kind: ListingKind = .default
 

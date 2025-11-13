@@ -8,9 +8,9 @@
 import Foundation
 
 public struct DeepLinkResult: Sendable, Codable {
-    public let mangaKey: String?
-    public let chapterKey: String?
-    public let listing: Listing?
+    public var mangaKey: String?
+    public var chapterKey: String?
+    public var listing: Listing?
 
     public init(
         mangaKey: String? = nil,

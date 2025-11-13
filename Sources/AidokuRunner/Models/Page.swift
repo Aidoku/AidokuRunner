@@ -10,11 +10,11 @@ import Foundation
 public typealias PageContext = [String: String]
 
 public struct Page: Sendable, Hashable {
-    public let content: PageContent
+    public var content: PageContent
     /// Optional thumbnail image url for the page
     public var thumbnail: URL?
-    public let hasDescription: Bool
-    public let description: String?
+    public var hasDescription: Bool
+    public var description: String?
 
     public init(
         content: PageContent,

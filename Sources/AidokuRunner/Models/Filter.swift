@@ -8,10 +8,10 @@
 import Foundation
 
 public struct Filter: Sendable, Hashable {
-    public let id: String
-    public let title: String?
-    public let hideFromHeader: Bool?
-    public let value: Value
+    public var id: String
+    public var title: String?
+    public var hideFromHeader: Bool?
+    public var value: Value
 
     public enum Value: Sendable, Hashable {
         case text(placeholder: String?)
@@ -176,23 +176,20 @@ extension Filter: Codable {
 }
 
 public struct SelectFilter: Sendable, Hashable {
-    public let isGenre: Bool
-//    public let canExclude: Bool
+    public var isGenre: Bool
     public var usesTagStyle: Bool
-    public let options: [String]
-    public let ids: [String]?
-    public let defaultValue: String?
+    public var options: [String]
+    public var ids: [String]?
+    public var defaultValue: String?
 
     public init(
         isGenre: Bool = false,
-//        canExclude: Bool = false,
         usesTagStyle: Bool? = nil,
         options: [String],
         ids: [String]? = nil,
         defaultValue: String? = nil
     ) {
         self.isGenre = isGenre
-//        self.canExclude = canExclude
         self.usesTagStyle = usesTagStyle ?? isGenre
         self.options = options
         self.ids = ids
@@ -201,13 +198,13 @@ public struct SelectFilter: Sendable, Hashable {
 }
 
 public struct MultiSelectFilter: Sendable, Hashable {
-    public let isGenre: Bool
-    public let canExclude: Bool
+    public var isGenre: Bool
+    public var canExclude: Bool
     public var usesTagStyle: Bool
-    public let options: [String]
-    public let ids: [String]?
-    public let defaultIncluded: [String]?
-    public let defaultExcluded: [String]?
+    public var options: [String]
+    public var ids: [String]?
+    public var defaultIncluded: [String]?
+    public var defaultExcluded: [String]?
 
     public init(
         isGenre: Bool = false,
@@ -232,7 +229,6 @@ extension SelectFilter: Codable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         isGenre = try container.decodeIfPresent(Bool.self, forKey: .isGenre) ?? false
-//        canExclude = try container.decodeIfPresent(Bool.self, forKey: .canExclude) ?? false
         usesTagStyle = try container.decodeIfPresent(Bool.self, forKey: .usesTagStyle) ?? isGenre
         options = try container.decode([String].self, forKey: .options)
         ids = try container.decodeIfPresent([String].self, forKey: .ids)
@@ -242,7 +238,6 @@ extension SelectFilter: Codable {
     public func encode(to encoder: any Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(isGenre, forKey: .isGenre)
-//        try container.encode(canExclude, forKey: .canExclude)
         try container.encode(usesTagStyle, forKey: .usesTagStyle)
         try container.encode(options, forKey: .options)
         try container.encode(ids, forKey: .ids)
