@@ -167,7 +167,7 @@ public final class Source: Sendable {
         )
 
         if runner.features.providesBaseUrl {
-            if let baseUrl = try? await runner.getBaseUrl() {
+            if let baseUrl = try? await runner.getBaseUrl(), !urls.contains(baseUrl) {
                 urls.insert(baseUrl, at: 0)
             }
         }
@@ -220,6 +220,7 @@ public final class Source: Sendable {
                 key: "url",
                 title: "BASE_URL",
                 notification: nil,
+                refreshes: ["content"],
                 value: .select(.init(
                     values: urls.map(\.absoluteString),
                     defaultValue: urls.first?.absoluteString
@@ -228,6 +229,7 @@ public final class Source: Sendable {
 
             extraSettings.append(Setting(title: setting.title, value: .group(.init(items: [setting]))))
         }
+
         return extraSettings
     }
 
