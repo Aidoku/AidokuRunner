@@ -333,6 +333,7 @@ public struct LoginSetting: Sendable, Codable, Hashable {
     public let tokenUrl: String?
     public let callbackScheme: String?
     public let useEmail: Bool?
+    public let localStorageKeys: [String]?
 
     public enum Method: String, Sendable, Codable {
         case basic
@@ -348,7 +349,8 @@ public struct LoginSetting: Sendable, Codable, Hashable {
         pkce: Bool = false,
         tokenUrl: String? = nil,
         callbackScheme: String? = nil,
-        useEmail: Bool? = nil
+        useEmail: Bool? = nil,
+        localStorageKeys: [String]? = nil
     ) {
         self.method = method
         self.url = url
@@ -358,6 +360,7 @@ public struct LoginSetting: Sendable, Codable, Hashable {
         self.tokenUrl = tokenUrl
         self.callbackScheme = callbackScheme
         self.useEmail = useEmail
+        self.localStorageKeys = localStorageKeys
     }
 }
 
