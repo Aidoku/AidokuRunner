@@ -9,7 +9,7 @@ import Foundation
 
 public struct SourceInfo: Sendable, Codable {
     public let info: Info
-    public let listings: [Listing]?
+    public let listings: [InfoListing]?
     public let config: Configuration?
 
     public struct Info: Sendable, Codable {
@@ -43,6 +43,28 @@ public struct SourceInfo: Sendable, Codable {
         }
     }
 
+    public struct InfoListing: Sendable, Codable {
+        public let listing: Listing
+
+        public init(listing: Listing) {
+            self.listing = listing
+        }
+
+        public init(from decoder: any Decoder) throws {
+            let container = try decoder.singleValueContainer()
+            if let name = try? container.decode(String.self) {
+                self.listing = .init(id: name, name: name)
+            } else {
+                self.listing = try container.decode(Listing.self)
+            }
+        }
+
+        public func encode(to encoder: any Encoder) throws {
+            var container = encoder.singleValueContainer()
+            try container.encode(listing)
+        }
+    }
+
     public struct Configuration: Sendable, Codable {
         public var languageSelectType: LanguageSelectType?
         public var supportsArtistSearch: Bool?
@@ -73,7 +95,7 @@ public struct SourceInfo: Sendable, Codable {
 
     public init(
         info: Info,
-        listings: [Listing]?,
+        listings: [InfoListing]?,
         config: Configuration?
     ) {
         self.info = info

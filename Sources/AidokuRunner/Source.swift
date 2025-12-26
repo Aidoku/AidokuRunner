@@ -133,7 +133,7 @@ public final class Source: Sendable {
         urls.append(contentsOf: (sourceInfo.info.urls ?? []).compactMap { URL(string: $0) })
 
         config = sourceInfo.config
-        staticListings = sourceInfo.listings ?? []
+        staticListings = (sourceInfo.listings ?? []).map(\.listing)
 
         // load static filters
         let filtersUrl = url.appending("filters.json")
