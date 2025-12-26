@@ -29,6 +29,7 @@ struct Html: SourceLibrary {
         try? module.linkFunction(name: "untrimmed_text", namespace: Self.namespace, function: untrimmedText)
         try? module.linkFunction(name: "html", namespace: Self.namespace, function: html)
         try? module.linkFunction(name: "outer_html", namespace: Self.namespace, function: outerHtml)
+        try? module.linkFunction(name: "remove", namespace: Self.namespace, function: remove)
 
         // `Element` functions
         try? module.linkFunction(name: "set_text", namespace: Self.namespace, function: setText)
@@ -47,7 +48,11 @@ struct Html: SourceLibrary {
         try? module.linkFunction(name: "tag_name", namespace: Self.namespace, function: tagName)
         try? module.linkFunction(name: "class_name", namespace: Self.namespace, function: className)
         try? module.linkFunction(name: "has_class", namespace: Self.namespace, function: hasClass)
+        try? module.linkFunction(name: "add_class", namespace: Self.namespace, function: addClass)
+        try? module.linkFunction(name: "remove_class", namespace: Self.namespace, function: removeClass)
         try? module.linkFunction(name: "has_attr", namespace: Self.namespace, function: hasAttr)
+        try? module.linkFunction(name: "set_attr", namespace: Self.namespace, function: setAttr)
+        try? module.linkFunction(name: "remove_attr", namespace: Self.namespace, function: removeAttr)
 
         // `Elements` functions
         try? module.linkFunction(name: "first", namespace: Self.namespace, function: first)
@@ -275,6 +280,25 @@ extension Html {
             return Result.noResult.rawValue
         }
     }
+
+    func remove(descriptor: Int32) -> Int32 {
+        guard let item = store.fetch(from: descriptor)
+        else { return Result.invalidDescriptor.rawValue }
+
+        do {
+            if let elements = item as? Elements {
+                try elements.remove()
+            } else if let element = item as? Element {
+                try element.remove()
+            } else {
+                return Result.noResult.rawValue
+            }
+        } catch {
+            return Result.swiftSoupError.rawValue
+        }
+
+        return Result.success.rawValue
+    }
 }
 
 // MARK: `Element` functions
@@ -438,14 +462,93 @@ extension Html {
         return element.hasClass(className) ? 1 : 0
     }
 
+    func addClass(memory: Memory, descriptor: Int32, classOffset: Int32, classLength: Int32) -> Int32 {
+        guard let element = store.fetch(from: descriptor) as? Element
+        else { return Result.invalidDescriptor.rawValue }
+
+        guard let className = readString(memory: memory, offset: classOffset, length: classLength)
+        else { return Result.invalidString.rawValue }
+
+        do {
+            try element.addClass(className)
+        } catch {
+            return Result.swiftSoupError.rawValue
+        }
+
+        return Result.success.rawValue
+    }
+
+    func removeClass(memory: Memory, descriptor: Int32, classOffset: Int32, classLength: Int32) -> Int32 {
+        guard let element = store.fetch(from: descriptor) as? Element
+        else { return Result.invalidDescriptor.rawValue }
+
+        guard let className = readString(memory: memory, offset: classOffset, length: classLength)
+        else { return Result.invalidString.rawValue }
+
+        do {
+            try element.removeClass(className)
+        } catch {
+            return Result.swiftSoupError.rawValue
+        }
+
+        return Result.success.rawValue
+    }
+
     func hasAttr(memory: Memory, descriptor: Int32, attrOffset: Int32, attrLength: Int32) -> Int32 {
         guard let element = store.fetch(from: descriptor) as? Element
-        else { return 0 }
+        else { return Result.invalidDescriptor.rawValue }
 
         guard let attr = readString(memory: memory, offset: attrOffset, length: attrLength)
-        else { return 0 }
+        else { return Result.invalidString.rawValue }
 
         return element.hasAttr(attr) ? 1 : 0
+    }
+
+    // swiftlint:disable:next function_parameter_count
+    func setAttr(
+        memory: Memory,
+        descriptor: Int32,
+        attrOffset: Int32,
+        attrLength: Int32,
+        valueOffset: Int32,
+        valueLength: Int32
+    ) -> Int32 {
+        guard let element = store.fetch(from: descriptor) as? Element
+        else { return Result.invalidDescriptor.rawValue }
+
+        guard let key = readString(memory: memory, offset: attrOffset, length: attrLength)?.utf8Array
+        else { return Result.invalidString.rawValue }
+
+        guard let value = readString(memory: memory, offset: valueOffset, length: valueLength)?.utf8Array
+        else { return Result.invalidString.rawValue }
+
+        do {
+            if value.isEmpty {
+                try element.removeAttr(key)
+            } else {
+                try element.attr(key, value)
+            }
+        } catch {
+            return Result.swiftSoupError.rawValue
+        }
+
+        return Result.success.rawValue
+    }
+
+    func removeAttr(memory: Memory, descriptor: Int32, attrOffset: Int32, attrLength: Int32) -> Int32 {
+        guard let element = store.fetch(from: descriptor) as? Element
+        else { return Result.invalidDescriptor.rawValue }
+
+        guard let key = readString(memory: memory, offset: attrOffset, length: attrLength)?.utf8Array
+        else { return Result.invalidString.rawValue }
+
+        do {
+            try element.removeAttr(key)
+        } catch {
+            return Result.swiftSoupError.rawValue
+        }
+
+        return Result.success.rawValue
     }
 }
 
