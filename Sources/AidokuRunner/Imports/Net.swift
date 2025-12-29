@@ -32,6 +32,7 @@ struct Net: SourceLibrary {
         try? module.linkFunction(name: "set_url", namespace: Self.namespace, function: setUrl)
         try? module.linkFunction(name: "set_header", namespace: Self.namespace, function: setHeader)
         try? module.linkFunction(name: "set_body", namespace: Self.namespace, function: setBody)
+        try? module.linkFunction(name: "set_timeout", namespace: Self.namespace, function: setTimeout)
 
         try? module.linkFunction(name: "data_len", namespace: Self.namespace, function: dataLength)
         try? module.linkFunction(name: "read_data", namespace: Self.namespace, function: readData)
@@ -262,6 +263,14 @@ extension Net {
             return Result.invalidString.rawValue
         }
         request.body = body
+        store.set(at: descriptor, item: request)
+        return Result.success.rawValue
+    }
+
+    func setTimeout(descriptor: Int32, value: Float64) -> Int32 {
+        guard var request = store.fetch(from: descriptor) as? NetRequest
+        else { return Result.invalidDescriptor.rawValue }
+        request.timeout = TimeInterval(value)
         store.set(at: descriptor, item: request)
         return Result.success.rawValue
     }

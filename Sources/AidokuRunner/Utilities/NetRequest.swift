@@ -38,6 +38,7 @@ struct NetRequest: Sendable {
     var url: URL?
     var headers: [String: String] = [:]
     var body: Data?
+    var timeout: TimeInterval?
 
     var response: URLResponse?
     var responseData: Data?
@@ -56,6 +57,7 @@ struct NetRequest: Sendable {
             request.addValue(header.value, forHTTPHeaderField: header.key)
         }
         request.httpBody = body
+        request.timeoutInterval = timeout ?? request.timeoutInterval
         return request
     }
 }
