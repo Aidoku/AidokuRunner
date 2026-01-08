@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum SettingType: String, Codable {
+public enum SettingType: String, Codable {
     case group
     case select
     case multiselect = "multi-select"
@@ -58,6 +58,16 @@ enum SettingType: String, Codable {
             case .custom: 12
         }
     }
+
+    public var requiresKey: Bool {
+        switch self {
+            case .group: false
+            case .button: false
+            case .link: false
+            case .page: false
+            default: true
+        }
+    }
 }
 
 public struct Setting: Sendable, Hashable {
@@ -105,7 +115,7 @@ public struct Setting: Sendable, Hashable {
     }
 }
 
-extension Setting {
+public extension Setting {
     var type: SettingType {
         switch value {
             case .group: .group
@@ -469,7 +479,7 @@ extension Setting: Codable {
         let type = try? container.decode(SettingType.self, forKey: .type)
         guard let type else { throw DecodingError.invalidType }
         key = (try? container.decode(String.self, forKey: .key)) ?? ""
-        if type != .group && key.isEmpty {
+        if type.requiresKey && key.isEmpty {
             throw DecodingError.missingKey
         }
         title = (try? container.decode(String.self, forKey: .title)) ?? ""
