@@ -278,6 +278,8 @@ public final class Source: Sendable {
                     }
                 case .group(let value):
                     self.loadSettingsDefaults(settings: value.items)
+                case .page(let value):
+                    self.loadSettingsDefaults(settings: value.items)
                 default:
                     break
             }
