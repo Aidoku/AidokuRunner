@@ -38,6 +38,7 @@ struct Net: SourceLibrary {
         try? module.linkFunction(name: "read_data", namespace: Self.namespace, function: readData)
         try? module.linkFunction(name: "get_image", namespace: Self.namespace, function: getImage)
         try? module.linkFunction(name: "get_status_code", namespace: Self.namespace, function: getStatusCode)
+        try? module.linkFunction(name: "get_url", namespace: Self.namespace, function: getUrl)
         try? module.linkFunction(name: "get_header", namespace: Self.namespace, function: getHeader)
         try? module.linkFunction(name: "html", namespace: Self.namespace, function: dataToHtml)
 
@@ -332,6 +333,19 @@ extension Net {
         else { return Result.missingResponse.rawValue }
 
         return Int32(response.statusCode)
+    }
+
+    func getUrl(descriptor: Int32) -> Int32 {
+        guard let request = store.fetch(from: descriptor) as? NetRequest
+        else { return Result.invalidDescriptor.rawValue }
+
+        guard let response = request.response as? HTTPURLResponse
+        else { return Result.missingResponse.rawValue }
+
+        guard let url = response.url?.absoluteString
+        else { return Result.missingUrl.rawValue }
+
+        return store.store(url)
     }
 
     func getHeader(memory: Memory, descriptor: Int32, key: Int32, keyLength: Int32) -> Int32 {
