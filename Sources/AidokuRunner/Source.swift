@@ -280,6 +280,10 @@ public final class Source: Sendable {
                     self.loadSettingsDefaults(settings: value.items)
                 case .page(let value):
                     self.loadSettingsDefaults(settings: value.items)
+                case .picker(let value):
+                    if let defaultValue = value.defaultValue {
+                        SettingsStore.shared.register(key: key(setting.key), default: defaultValue)
+                    }
                 default:
                     break
             }

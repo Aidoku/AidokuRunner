@@ -20,6 +20,7 @@ public enum SettingType: String, Codable {
     case login
     case page
     case editableList = "editable-list"
+    case picker
     case custom
 
     init?(_ byteValue: UInt8) {
@@ -37,6 +38,7 @@ public enum SettingType: String, Codable {
             case 10: self = .page
             case 11: self = .editableList
             case 12: self = .custom
+            case 13: self = .picker
             default: return nil
         }
     }
@@ -56,6 +58,7 @@ public enum SettingType: String, Codable {
             case .page: 10
             case .editableList: 11
             case .custom: 12
+            case .picker: 13
         }
     }
 
@@ -93,6 +96,7 @@ public struct Setting: Sendable, Hashable {
         case login(LoginSetting)
         case page(PageSetting)
         case editableList(EditableListSetting)
+        case picker(PickerSetting)
         case custom
     }
 
@@ -130,6 +134,7 @@ public extension Setting {
             case .login: .login
             case .page: .page
             case .editableList: .editableList
+            case .picker: .picker
             case .custom: .custom
         }
     }
@@ -472,8 +477,32 @@ public struct EditableListSetting: Sendable, Codable, Hashable {
     }
 }
 
+// MARK: Picker
+public struct PickerSetting: Sendable, Codable, Hashable {
+    public let values: [String]
+    public let titles: [String]?
+    public let defaultValue: String?
+
+    public init(
+        values: [String],
+        titles: [String]? = nil,
+        defaultValue: String? = nil
+    ) {
+        self.values = values
+        self.titles = titles
+        self.defaultValue = defaultValue
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case values
+        case titles
+        case defaultValue = "default"
+    }
+}
+
 // MARK: Codable
 extension Setting: Codable {
+    // swiftlint:disable:next cyclomatic_complexity
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let type = try? container.decode(SettingType.self, forKey: .type)
@@ -503,6 +532,7 @@ extension Setting: Codable {
             case .login: value = .login(try LoginSetting(from: decoder))
             case .page: value = .page(try PageSetting(from: decoder))
             case .editableList: value = .editableList(try EditableListSetting(from: decoder))
+            case .picker: value = .picker(try PickerSetting(from: decoder))
             case .custom: value = .custom
         }
     }
@@ -533,6 +563,7 @@ extension Setting: Codable {
             case let .login(value): try value.encode(to: encoder)
             case let .page(value): try value.encode(to: encoder)
             case let .editableList(value): try value.encode(to: encoder)
+            case let .picker(value): try value.encode(to: encoder)
             case .custom: break
         }
     }
