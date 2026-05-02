@@ -249,7 +249,7 @@ public final class Source: Sendable {
         for setting in settings {
             switch setting.value {
                 case .select(let value):
-                    if let defaultValue = value.defaultValue {
+                    if let defaultValue = value.defaultValue ?? value.values.first {
                         SettingsStore.shared.register(key: key(setting.key), default: defaultValue)
                     }
                 case .multiselect(let value):
@@ -281,7 +281,7 @@ public final class Source: Sendable {
                 case .page(let value):
                     self.loadSettingsDefaults(settings: value.items)
                 case .picker(let value):
-                    if let defaultValue = value.defaultValue {
+                    if let defaultValue = value.defaultValue ?? value.values.first {
                         SettingsStore.shared.register(key: key(setting.key), default: defaultValue)
                     }
                 default:
