@@ -21,26 +21,20 @@ struct Html: SourceLibrary {
         try? module.linkFunction(name: "escape", namespace: Self.namespace, function: escape)
         try? module.linkFunction(name: "unescape", namespace: Self.namespace, function: unescape)
 
-        // `Elements` and `Element` functions
-        try? module.linkFunction(name: "select", namespace: Self.namespace, function: select)
-        try? module.linkFunction(name: "select_first", namespace: Self.namespace, function: selectFirst)
-        try? module.linkFunction(name: "attr", namespace: Self.namespace, function: attr)
-        try? module.linkFunction(name: "text", namespace: Self.namespace, function: text)
-        try? module.linkFunction(name: "untrimmed_text", namespace: Self.namespace, function: untrimmedText)
-        try? module.linkFunction(name: "html", namespace: Self.namespace, function: html)
-        try? module.linkFunction(name: "outer_html", namespace: Self.namespace, function: outerHtml)
-        try? module.linkFunction(name: "remove", namespace: Self.namespace, function: remove)
+        try? module.linkFunction(name: "kind", namespace: Self.namespace, function: kind)
+
+        // `Node` functions
+        try? module.linkFunction(name: "child_nodes", namespace: Self.namespace, function: childNodes)
+        try? module.linkFunction(name: "has_attr", namespace: Self.namespace, function: hasAttr)
+        try? module.linkFunction(name: "set_attr", namespace: Self.namespace, function: setAttr)
+        try? module.linkFunction(name: "remove_attr", namespace: Self.namespace, function: removeAttr)
 
         // `Element` functions
         try? module.linkFunction(name: "set_text", namespace: Self.namespace, function: setText)
         try? module.linkFunction(name: "set_html", namespace: Self.namespace, function: setHtml)
         try? module.linkFunction(name: "prepend", namespace: Self.namespace, function: prepend)
         try? module.linkFunction(name: "append", namespace: Self.namespace, function: append)
-        try? module.linkFunction(name: "parent", namespace: Self.namespace, function: parent)
         try? module.linkFunction(name: "children", namespace: Self.namespace, function: children)
-        try? module.linkFunction(name: "siblings", namespace: Self.namespace, function: siblings)
-        try? module.linkFunction(name: "next", namespace: Self.namespace, function: next)
-        try? module.linkFunction(name: "previous", namespace: Self.namespace, function: previous)
         try? module.linkFunction(name: "base_uri", namespace: Self.namespace, function: baseUri)
         try? module.linkFunction(name: "own_text", namespace: Self.namespace, function: ownText)
         try? module.linkFunction(name: "data", namespace: Self.namespace, function: data)
@@ -50,15 +44,30 @@ struct Html: SourceLibrary {
         try? module.linkFunction(name: "has_class", namespace: Self.namespace, function: hasClass)
         try? module.linkFunction(name: "add_class", namespace: Self.namespace, function: addClass)
         try? module.linkFunction(name: "remove_class", namespace: Self.namespace, function: removeClass)
-        try? module.linkFunction(name: "has_attr", namespace: Self.namespace, function: hasAttr)
-        try? module.linkFunction(name: "set_attr", namespace: Self.namespace, function: setAttr)
-        try? module.linkFunction(name: "remove_attr", namespace: Self.namespace, function: removeAttr)
 
         // `Elements` functions
         try? module.linkFunction(name: "first", namespace: Self.namespace, function: first)
         try? module.linkFunction(name: "last", namespace: Self.namespace, function: last)
         try? module.linkFunction(name: "get", namespace: Self.namespace, function: get)
         try? module.linkFunction(name: "size", namespace: Self.namespace, function: size)
+
+        // `Element` and `Node` functions
+        try? module.linkFunction(name: "parent", namespace: Self.namespace, function: parent)
+        try? module.linkFunction(name: "siblings", namespace: Self.namespace, function: siblings)
+        try? module.linkFunction(name: "next", namespace: Self.namespace, function: next)
+        try? module.linkFunction(name: "previous", namespace: Self.namespace, function: previous)
+
+        // `Elements` and `Node` functions
+        try? module.linkFunction(name: "attr", namespace: Self.namespace, function: attr)
+        try? module.linkFunction(name: "outer_html", namespace: Self.namespace, function: outerHtml)
+        try? module.linkFunction(name: "remove", namespace: Self.namespace, function: remove)
+
+        // `Elements` and `Element` functions
+        try? module.linkFunction(name: "select", namespace: Self.namespace, function: select)
+        try? module.linkFunction(name: "select_first", namespace: Self.namespace, function: selectFirst)
+        try? module.linkFunction(name: "text", namespace: Self.namespace, function: text)
+        try? module.linkFunction(name: "untrimmed_text", namespace: Self.namespace, function: untrimmedText)
+        try? module.linkFunction(name: "html", namespace: Self.namespace, function: html)
     }
 
     enum Result: Int32 {
@@ -143,156 +152,100 @@ extension Html {
     }
 }
 
-// MARK: `Elements` and `Element` functions
 extension Html {
-    func select(_ memory: Memory, descriptor: Int32, query: Int32, queryLength: Int32) -> Int32 {
+    enum Kind: Int32 {
+        case unknown = 0
+        case node = 1
+        case textNode = 2
+        case dataNode = 3
+        case comment = 4
+        case element = 5
+        case elementList = 6
+        case document = 7
+    }
+
+    func kind(descriptor: Int32) -> Int32 {
         guard let item = store.fetch(from: descriptor)
         else { return Result.invalidDescriptor.rawValue }
 
-        guard let queryString = readString(memory: memory, offset: query, length: queryLength)
+        if item is Document {
+            return Kind.document.rawValue
+        } else if item is Element {
+            return Kind.element.rawValue
+        } else if item is Elements {
+            return Kind.elementList.rawValue
+        } else if item is Comment {
+            return Kind.comment.rawValue
+        } else if item is TextNode {
+            return Kind.textNode.rawValue
+        } else if item is DataNode {
+            return Kind.dataNode.rawValue
+        } else if item is Node {
+            return Kind.node.rawValue
+        } else {
+            return Kind.unknown.rawValue
+        }
+    }
+}
+
+// MARK: `Node` functions
+extension Html {
+    func childNodes(descriptor: Int32) -> Int32 {
+        guard let node = store.fetch(from: descriptor) as? Node
+        else { return Result.invalidDescriptor.rawValue }
+        return store.store(node.getChildNodes())
+    }
+
+    func hasAttr(memory: Memory, descriptor: Int32, attrOffset: Int32, attrLength: Int32) -> Int32 {
+        guard let element = store.fetch(from: descriptor) as? Node
+        else { return Result.invalidDescriptor.rawValue }
+
+        guard let attr = readString(memory: memory, offset: attrOffset, length: attrLength)
+        else { return Result.invalidString.rawValue }
+
+        return element.hasAttr(attr) ? 1 : 0
+    }
+
+    // swiftlint:disable:next function_parameter_count
+    func setAttr(
+        memory: Memory,
+        descriptor: Int32,
+        attrOffset: Int32,
+        attrLength: Int32,
+        valueOffset: Int32,
+        valueLength: Int32
+    ) -> Int32 {
+        guard let element = store.fetch(from: descriptor) as? Node
+        else { return Result.invalidDescriptor.rawValue }
+
+        guard let key = readString(memory: memory, offset: attrOffset, length: attrLength)?.utf8Array
+        else { return Result.invalidString.rawValue }
+
+        guard let value = readString(memory: memory, offset: valueOffset, length: valueLength)?.utf8Array
         else { return Result.invalidString.rawValue }
 
         do {
-            let elements: Elements? = if let baseElements = item as? Elements {
-                try baseElements.select(queryString)
-            } else if let element = item as? Element {
-                try element.select(queryString)
+            if value.isEmpty {
+                try element.removeAttr(key)
             } else {
-                nil
-            }
-
-            if let elements {
-                return store.store(elements)
-            } else {
-                return Result.noResult.rawValue
+                try element.attr(key, value)
             }
         } catch {
-            return Result.invalidQuery.rawValue
+            return Result.swiftSoupError.rawValue
         }
+
+        return Result.success.rawValue
     }
 
-    func selectFirst(_ memory: Memory, descriptor: Int32, query: Int32, queryLength: Int32) -> Int32 {
-        let selectResult = select(memory, descriptor: descriptor, query: query, queryLength: queryLength)
-        if selectResult < 0 {
-            return selectResult
-        }
-        defer { store.remove(at: selectResult) }
-        guard let element = (store.fetch(from: selectResult) as? Elements)?.first() else {
-            return Result.noResult.rawValue
-        }
-        return store.store(element)
-    }
-
-    func attr(_ memory: Memory, descriptor: Int32, key: Int32, keyLength: Int32) -> Int32 {
-        guard let item = store.fetch(from: descriptor)
+    func removeAttr(memory: Memory, descriptor: Int32, attrOffset: Int32, attrLength: Int32) -> Int32 {
+        guard let element = store.fetch(from: descriptor) as? Node
         else { return Result.invalidDescriptor.rawValue }
 
-        guard let keyString = readString(memory: memory, offset: key, length: keyLength)
+        guard let key = readString(memory: memory, offset: attrOffset, length: attrLength)?.utf8Array
         else { return Result.invalidString.rawValue }
 
-        let attr: String? = if let elements = item as? Elements {
-            try? elements.attr(keyString)
-        } else if let element = item as? Element {
-            try? element.attr(keyString)
-        } else {
-            nil
-        }
-
-        if let attr {
-            return store.store(attr)
-        } else {
-            return Result.noResult.rawValue
-        }
-    }
-
-    func text(descriptor: Int32) -> Int32 {
-        guard let item = store.fetch(from: descriptor)
-        else { return Result.invalidDescriptor.rawValue }
-
-        let text: String? = if let elements = item as? Elements {
-            try? elements.text()
-        } else if let element = item as? Element {
-            try? element.text()
-        } else {
-            nil
-        }
-
-        if let text {
-            return store.store(text)
-        } else {
-            return Result.noResult.rawValue
-        }
-    }
-
-    func untrimmedText(descriptor: Int32) -> Int32 {
-        guard let item = store.fetch(from: descriptor)
-        else { return Result.invalidDescriptor.rawValue }
-
-        let text: String? = if let elements = item as? Elements {
-            try? elements.text(trimAndNormaliseWhitespace: false)
-        } else if let element = item as? Element {
-            try? element.text(trimAndNormaliseWhitespace: false)
-        } else {
-            nil
-        }
-
-        if let text {
-            return store.store(text)
-        } else {
-            return Result.noResult.rawValue
-        }
-    }
-
-    func html(descriptor: Int32) -> Int32 {
-        guard let item = store.fetch(from: descriptor)
-        else { return Result.invalidDescriptor.rawValue }
-
-        let text: String? = if let elements = item as? Elements {
-            try? elements.html()
-        } else if let element = item as? Element {
-            try? element.html()
-        } else {
-            nil
-        }
-
-        if let text {
-            return store.store(text)
-        } else {
-            return Result.noResult.rawValue
-        }
-    }
-
-    func outerHtml(descriptor: Int32) -> Int32 {
-        guard let item = store.fetch(from: descriptor)
-        else { return Result.invalidDescriptor.rawValue }
-
-        let text: String? = if let elements = item as? Elements {
-            try? elements.outerHtml()
-        } else if let element = item as? Element {
-            try? element.outerHtml()
-        } else {
-            nil
-        }
-
-        if let text {
-            return store.store(text)
-        } else {
-            return Result.noResult.rawValue
-        }
-    }
-
-    func remove(descriptor: Int32) -> Int32 {
-        guard let item = store.fetch(from: descriptor)
-        else { return Result.invalidDescriptor.rawValue }
-
         do {
-            if let elements = item as? Elements {
-                try elements.remove()
-            } else if let element = item as? Element {
-                try element.remove()
-            } else {
-                return Result.noResult.rawValue
-            }
+            try element.removeAttr(key)
         } catch {
             return Result.swiftSoupError.rawValue
         }
@@ -303,49 +256,10 @@ extension Html {
 
 // MARK: `Element` functions
 extension Html {
-    func parent(descriptor: Int32) -> Int32 {
-        guard let element = store.fetch(from: descriptor) as? Element
-        else { return Result.invalidDescriptor.rawValue }
-
-        if let element = element.parent() {
-            return store.store(element)
-        }
-
-        return Result.noResult.rawValue
-    }
-
     func children(descriptor: Int32) -> Int32 {
         guard let element = store.fetch(from: descriptor) as? Element
         else { return Result.invalidDescriptor.rawValue }
         return store.store(element.children())
-    }
-
-    func siblings(descriptor: Int32) -> Int32 {
-        guard let element = store.fetch(from: descriptor) as? Element
-        else { return Result.invalidDescriptor.rawValue }
-        return store.store(element.siblingElements())
-    }
-
-    func next(descriptor: Int32) -> Int32 {
-        guard let element = store.fetch(from: descriptor) as? Element
-        else { return Result.invalidDescriptor.rawValue }
-
-        if let element = try? element.nextElementSibling() {
-            return store.store(element)
-        }
-
-        return Result.noResult.rawValue
-    }
-
-    func previous(descriptor: Int32) -> Int32 {
-        guard let element = store.fetch(from: descriptor) as? Element
-        else { return Result.invalidDescriptor.rawValue }
-
-        if let element = try? element.previousElementSibling() {
-            return store.store(element)
-        }
-
-        return Result.noResult.rawValue
     }
 
     func setText(memory: Memory, descriptor: Int32, text: Int32, textLength: Int32) -> Int32 {
@@ -425,9 +339,18 @@ extension Html {
     }
 
     func data(descriptor: Int32) -> Int32 {
-        guard let element = store.fetch(from: descriptor) as? Element
+        guard let item = store.fetch(from: descriptor)
         else { return Result.invalidDescriptor.rawValue }
-        return store.store(element.data())
+
+        if let element = item as? Element {
+            return store.store(element.data())
+        } else if let node = item as? DataNode {
+            return store.store(node.getWholeData())
+        } else if let node = item as? Comment {
+            return store.store(node.getData())
+        } else {
+            return Result.invalidDescriptor.rawValue
+        }
     }
 
     func id(descriptor: Int32) -> Int32 {
@@ -493,63 +416,6 @@ extension Html {
 
         return Result.success.rawValue
     }
-
-    func hasAttr(memory: Memory, descriptor: Int32, attrOffset: Int32, attrLength: Int32) -> Int32 {
-        guard let element = store.fetch(from: descriptor) as? Element
-        else { return Result.invalidDescriptor.rawValue }
-
-        guard let attr = readString(memory: memory, offset: attrOffset, length: attrLength)
-        else { return Result.invalidString.rawValue }
-
-        return element.hasAttr(attr) ? 1 : 0
-    }
-
-    // swiftlint:disable:next function_parameter_count
-    func setAttr(
-        memory: Memory,
-        descriptor: Int32,
-        attrOffset: Int32,
-        attrLength: Int32,
-        valueOffset: Int32,
-        valueLength: Int32
-    ) -> Int32 {
-        guard let element = store.fetch(from: descriptor) as? Element
-        else { return Result.invalidDescriptor.rawValue }
-
-        guard let key = readString(memory: memory, offset: attrOffset, length: attrLength)?.utf8Array
-        else { return Result.invalidString.rawValue }
-
-        guard let value = readString(memory: memory, offset: valueOffset, length: valueLength)?.utf8Array
-        else { return Result.invalidString.rawValue }
-
-        do {
-            if value.isEmpty {
-                try element.removeAttr(key)
-            } else {
-                try element.attr(key, value)
-            }
-        } catch {
-            return Result.swiftSoupError.rawValue
-        }
-
-        return Result.success.rawValue
-    }
-
-    func removeAttr(memory: Memory, descriptor: Int32, attrOffset: Int32, attrLength: Int32) -> Int32 {
-        guard let element = store.fetch(from: descriptor) as? Element
-        else { return Result.invalidDescriptor.rawValue }
-
-        guard let key = readString(memory: memory, offset: attrOffset, length: attrLength)?.utf8Array
-        else { return Result.invalidString.rawValue }
-
-        do {
-            try element.removeAttr(key)
-        } catch {
-            return Result.swiftSoupError.rawValue
-        }
-
-        return Result.success.rawValue
-    }
 }
 
 // MARK: `Elements` functions
@@ -577,20 +443,272 @@ extension Html {
     }
 
     func get(descriptor: Int32, index: Int32) -> Int32 {
-        guard let elements = store.fetch(from: descriptor) as? Elements
+        guard let item = store.fetch(from: descriptor)
         else { return Result.invalidDescriptor.rawValue }
 
         let index = Int(index)
-        if elements.indices.contains(index) {
-            return store.store(elements.get(index))
+        if let elements = item as? Elements {
+            if elements.indices.contains(index) {
+                return store.store(elements.get(index))
+            }
+        } else if let array = item as? [Any] {
+            if array.indices.contains(index) {
+                return store.store(array[index])
+            }
+        } else {
+            return Result.invalidDescriptor.rawValue
         }
 
         return Result.noResult.rawValue
     }
 
     func size(descriptor: Int32) -> Int32 {
-        guard let elements = store.fetch(from: descriptor) as? Elements
+        guard let item = store.fetch(from: descriptor)
         else { return Result.invalidDescriptor.rawValue }
-        return Int32(elements.size())
+        if let elements = item as? Elements {
+            return Int32(elements.size())
+        } else if let array = item as? [Any] {
+            return Int32(array.count)
+        } else {
+            return Result.invalidDescriptor.rawValue
+        }
+    }
+}
+
+// `Element` and `Node` functions
+extension Html {
+    func parent(descriptor: Int32) -> Int32 {
+        guard let item = store.fetch(from: descriptor)
+        else { return Result.invalidDescriptor.rawValue }
+
+        if let element = item as? Element {
+            if let element = element.parent() {
+                return store.store(element)
+            }
+        } else if let node = item as? Node {
+            if let node = node.parent() {
+                return store.store(node)
+            }
+        } else {
+            return Result.invalidDescriptor.rawValue
+        }
+
+        return Result.noResult.rawValue
+    }
+
+    func siblings(descriptor: Int32) -> Int32 {
+        guard let item = store.fetch(from: descriptor)
+        else { return Result.invalidDescriptor.rawValue }
+
+        if let element = item as? Element {
+            return store.store(element.siblingElements())
+        } else if let node = item as? Node {
+            return store.store(node.siblingNodes())
+        } else {
+            return Result.invalidDescriptor.rawValue
+        }
+    }
+
+    func next(descriptor: Int32) -> Int32 {
+        guard let item = store.fetch(from: descriptor)
+        else { return Result.invalidDescriptor.rawValue }
+
+        if let element = item as? Element {
+            if let element = try? element.nextElementSibling() {
+                return store.store(element)
+            }
+        } else if let node = item as? Node {
+            if let node = node.nextSibling() {
+                return store.store(node)
+            }
+        } else {
+            return Result.invalidDescriptor.rawValue
+        }
+
+        return Result.noResult.rawValue
+    }
+
+    func previous(descriptor: Int32) -> Int32 {
+        guard let item = store.fetch(from: descriptor)
+        else { return Result.invalidDescriptor.rawValue }
+
+        if let element = item as? Element {
+            if let element = try? element.previousElementSibling() {
+                return store.store(element)
+            }
+        } else if let node = item as? Node {
+            if let node = node.previousSibling() {
+                return store.store(node)
+            }
+        } else {
+            return Result.invalidDescriptor.rawValue
+        }
+
+        return Result.noResult.rawValue
+    }
+}
+
+// MARK: `Elements` and `Node` functions
+extension Html {
+    func attr(_ memory: Memory, descriptor: Int32, key: Int32, keyLength: Int32) -> Int32 {
+        guard let item = store.fetch(from: descriptor)
+        else { return Result.invalidDescriptor.rawValue }
+
+        guard let keyString = readString(memory: memory, offset: key, length: keyLength)
+        else { return Result.invalidString.rawValue }
+
+        let attr: String? = if let elements = item as? Elements {
+            try? elements.attr(keyString)
+        } else if let node = item as? Node {
+            try? node.attr(keyString)
+        } else {
+            nil
+        }
+
+        if let attr {
+            return store.store(attr)
+        } else {
+            return Result.noResult.rawValue
+        }
+    }
+
+    func outerHtml(descriptor: Int32) -> Int32 {
+        guard let item = store.fetch(from: descriptor)
+        else { return Result.invalidDescriptor.rawValue }
+
+        let text: String? = if let elements = item as? Elements {
+            try? elements.outerHtml()
+        } else if let element = item as? Node {
+            try? element.outerHtml()
+        } else {
+            nil
+        }
+
+        if let text {
+            return store.store(text)
+        } else {
+            return Result.noResult.rawValue
+        }
+    }
+
+    func remove(descriptor: Int32) -> Int32 {
+        guard let item = store.fetch(from: descriptor)
+        else { return Result.invalidDescriptor.rawValue }
+
+        do {
+            if let elements = item as? Elements {
+                try elements.remove()
+            } else if let element = item as? Node {
+                try element.remove()
+            } else {
+                return Result.noResult.rawValue
+            }
+        } catch {
+            return Result.swiftSoupError.rawValue
+        }
+
+        return Result.success.rawValue
+    }
+}
+
+// MARK: `Elements` and `Element` functions
+extension Html {
+    func select(_ memory: Memory, descriptor: Int32, query: Int32, queryLength: Int32) -> Int32 {
+        guard let item = store.fetch(from: descriptor)
+        else { return Result.invalidDescriptor.rawValue }
+
+        guard let queryString = readString(memory: memory, offset: query, length: queryLength)
+        else { return Result.invalidString.rawValue }
+
+        do {
+            let elements: Elements? = if let baseElements = item as? Elements {
+                try baseElements.select(queryString)
+            } else if let element = item as? Element {
+                try element.select(queryString)
+            } else {
+                nil
+            }
+
+            if let elements {
+                return store.store(elements)
+            } else {
+                return Result.noResult.rawValue
+            }
+        } catch {
+            return Result.invalidQuery.rawValue
+        }
+    }
+
+    func selectFirst(_ memory: Memory, descriptor: Int32, query: Int32, queryLength: Int32) -> Int32 {
+        let selectResult = select(memory, descriptor: descriptor, query: query, queryLength: queryLength)
+        if selectResult < 0 {
+            return selectResult
+        }
+        defer { store.remove(at: selectResult) }
+        guard let element = (store.fetch(from: selectResult) as? Elements)?.first() else {
+            return Result.noResult.rawValue
+        }
+        return store.store(element)
+    }
+
+    func text(descriptor: Int32) -> Int32 {
+        guard let item = store.fetch(from: descriptor)
+        else { return Result.invalidDescriptor.rawValue }
+
+        let text: String? = if let elements = item as? Elements {
+            try? elements.text()
+        } else if let element = item as? Element {
+            try? element.text()
+        } else if let node = item as? TextNode {
+            node.text()
+        } else {
+            nil
+        }
+
+        if let text {
+            return store.store(text)
+        } else {
+            return Result.noResult.rawValue
+        }
+    }
+
+    func untrimmedText(descriptor: Int32) -> Int32 {
+        guard let item = store.fetch(from: descriptor)
+        else { return Result.invalidDescriptor.rawValue }
+
+        let text: String? = if let elements = item as? Elements {
+            try? elements.text(trimAndNormaliseWhitespace: false)
+        } else if let element = item as? Element {
+            try? element.text(trimAndNormaliseWhitespace: false)
+        } else if let element = item as? TextNode {
+            element.getWholeText()
+        } else {
+            nil
+        }
+
+        if let text {
+            return store.store(text)
+        } else {
+            return Result.noResult.rawValue
+        }
+    }
+
+    func html(descriptor: Int32) -> Int32 {
+        guard let item = store.fetch(from: descriptor)
+        else { return Result.invalidDescriptor.rawValue }
+
+        let text: String? = if let elements = item as? Elements {
+            try? elements.html()
+        } else if let element = item as? Element {
+            try? element.html()
+        } else {
+            nil
+        }
+
+        if let text {
+            return store.store(text)
+        } else {
+            return Result.noResult.rawValue
+        }
     }
 }
