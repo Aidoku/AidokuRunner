@@ -203,10 +203,11 @@ public final class Source: Sendable {
                     defaultValue: defaultLanguages
                 ))
 
+            let languageKey = languageSelectType == .single ? "language" : "languages"
             let setting = Setting(
-                key: languageSelectType == .single ? "language" : "languages",
+                key: languageKey,
                 title: languageSelectType == .single ? "LANGUAGE" : "LANGUAGES",
-                notification: nil,
+                notification: languageKey,
                 refreshes: ["content"],
                 value: value
             )
