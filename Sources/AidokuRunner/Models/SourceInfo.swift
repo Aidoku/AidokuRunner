@@ -73,6 +73,7 @@ public struct SourceInfo: Sendable, Codable {
         public var allowsBaseUrlSelect: Bool?
         public var breakingChangeVersion: Int?
         public var hidesFiltersWhileSearching: Bool?
+        public var maximumParallelRequests: Int?
 
         public init(
             languageSelectType: LanguageSelectType? = nil,
@@ -81,7 +82,8 @@ public struct SourceInfo: Sendable, Codable {
             supportsTagSearch: Bool? = nil,
             allowsBaseUrlSelect: Bool? = nil,
             breakingChangeVersion: Int? = nil,
-            hidesFiltersWhileSearching: Bool? = nil
+            hidesFiltersWhileSearching: Bool? = nil,
+            maximumParallelRequests: Int? = nil
         ) {
             self.languageSelectType = languageSelectType
             self.supportsArtistSearch = supportsArtistSearch
@@ -90,6 +92,7 @@ public struct SourceInfo: Sendable, Codable {
             self.allowsBaseUrlSelect = allowsBaseUrlSelect
             self.breakingChangeVersion = breakingChangeVersion
             self.hidesFiltersWhileSearching = hidesFiltersWhileSearching
+            self.maximumParallelRequests = maximumParallelRequests
         }
     }
 
