@@ -16,7 +16,7 @@ struct JavaScript: SourceLibrary {
     let module: Module
     let store: GlobalStore
 
-    func link() throws {
+    func link() {
         try? module.linkFunction(name: "context_create", namespace: Self.namespace, function: contextCreate)
         try? module.linkFunction(name: "context_eval", namespace: Self.namespace, function: contextEval)
         try? module.linkFunction(name: "context_get", namespace: Self.namespace, function: contextGet)
@@ -135,7 +135,7 @@ extension JavaScript {
             return Result.invalidString.rawValue
         }
 
-        let url: URL? = if urlStringPointer >= 0 && urlLength > 0 {
+        let url: URL? = if urlStringPointer >= 0, urlLength > 0 {
             (try? memory.readString(offset: UInt32(urlStringPointer), length: UInt32(urlLength)))
                 .flatMap { URL(string: $0) }
         } else {

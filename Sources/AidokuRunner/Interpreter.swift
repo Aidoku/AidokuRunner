@@ -12,7 +12,7 @@ public struct InterpreterConfiguration: Sendable {
     let printHandler: (@Sendable (String) -> Void)?
     let requestHandler: (@Sendable (URLRequest) async throws -> (Data, URLResponse))?
 
-    public init(
+    @preconcurrency public init(
         printHandler: (@Sendable (String) -> Void)? = nil,
         requestHandler: (@Sendable (URLRequest) async throws -> (Data, URLResponse))? = nil
     ) {
@@ -39,8 +39,6 @@ public actor Interpreter {
         bytes: [UInt8],
         stackSize: UInt32 = 1024 * 200,
         config: InterpreterConfiguration = .init()
-        // we call an isolated actor function (start) so this needs to be async despite the lint
-        // swiftlint:disable:next async_without_await
     ) async throws {
         self.sourceKey = sourceKey
         let env = try Environment()
@@ -49,22 +47,22 @@ public actor Interpreter {
         self.config = config
 
         // import functions (must be done before calling findFunction)
-        try Env(
+        Env(
             module: module,
             partialValueHandler: partialValueHandler,
             printHandler: config.printHandler ?? { print($0) }
         ).link()
-        try Std(module: module, store: store).link()
-        try Defaults(module: module, store: store, defaultNamespace: sourceKey).link()
-        try Net(
+        Std(module: module, store: store).link()
+        Defaults(module: module, store: store, defaultNamespace: sourceKey).link()
+        Net(
             module: module,
             store: store,
             requestHandler: config.requestHandler
         ).link()
-        try Html(module: module, store: store).link()
-        try JavaScript(module: module, store: store).link()
+        Html(module: module, store: store).link()
+        JavaScript(module: module, store: store).link()
 #if canImport(UIKit)
-        try Canvas(module: module, store: store).link()
+        Canvas(module: module, store: store).link()
 #endif
 
         let providesListings = (try? module.findFunction(name: "get_manga_list")) != nil

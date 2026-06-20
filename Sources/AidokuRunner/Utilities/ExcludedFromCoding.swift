@@ -15,11 +15,11 @@ public struct ExcludedFromCoding: Sendable, Codable, Hashable {
         self.wrappedValue = wrappedValue
     }
 
-    public init(from _: Decoder) throws {
+    public init(from _: Decoder) {
         self.wrappedValue = ""
     }
 
-    public func encode(to _: Encoder) throws {
+    public func encode(to _: Encoder) {
         // do nothing
     }
 }

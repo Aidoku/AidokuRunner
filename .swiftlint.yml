@@ -9,6 +9,7 @@ disabled_rules:
   - closure_body_length
   - conditional_returns_on_newline
   - contrasted_opening_brace
+  - discouraged_default_parameter
   - discouraged_optional_boolean
   - discouraged_optional_collection
   - explicit_acl
@@ -23,6 +24,7 @@ disabled_rules:
   - function_body_length
   - identifier_name
   - indentation_width
+  - legacy_uigraphics_function
   - missing_docs
   - multiline_arguments
   - multiline_arguments_brackets
@@ -39,7 +41,7 @@ disabled_rules:
   - one_declaration_per_file
   - prefer_nimble
   - prefixed_toplevel_constant
-  - redundant_self_in_closure
+  - redundant_self
   - required_deinit
   - sorted_enum_cases
   - strict_fileprivate
@@ -49,6 +51,7 @@ disabled_rules:
   - todo
   - type_body_length
   - type_contents_order
+  - variable_shadowing
   - vertical_whitespace_between_cases
 custom_rules:
   comment_whitespace:

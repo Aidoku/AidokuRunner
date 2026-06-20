@@ -177,7 +177,7 @@ private class PostcardKeyedEncoding<Key: CodingKey>: KeyedEncodingContainerProto
         }
     }
 
-    func encodeNil(forKey key: Key) throws {
+    func encodeNil(forKey key: Key) {
         if useKeys {
             data.encode(key.stringValue)
         }
@@ -188,7 +188,7 @@ private class PostcardKeyedEncoding<Key: CodingKey>: KeyedEncodingContainerProto
         count += prependLength ? 1 : 0
     }
 
-    func encode(_ value: Bool, forKey key: Key) throws {
+    func encode(_ value: Bool, forKey key: Key) {
         if useKeys {
             data.encode(key.stringValue)
         }
@@ -199,7 +199,7 @@ private class PostcardKeyedEncoding<Key: CodingKey>: KeyedEncodingContainerProto
         count += prependLength ? 1 : 0
     }
 
-    func encode(_ value: String, forKey key: Key) throws {
+    func encode(_ value: String, forKey key: Key) {
         if useKeys {
             data.encode(key.stringValue)
         }
@@ -210,7 +210,7 @@ private class PostcardKeyedEncoding<Key: CodingKey>: KeyedEncodingContainerProto
         count += prependLength ? 1 : 0
     }
 
-    func encode(_ value: Double, forKey key: Key) throws {
+    func encode(_ value: Double, forKey key: Key) {
         if useKeys {
             data.encode(key.stringValue)
         }
@@ -221,7 +221,7 @@ private class PostcardKeyedEncoding<Key: CodingKey>: KeyedEncodingContainerProto
         count += prependLength ? 1 : 0
     }
 
-    func encode(_ value: Float, forKey key: Key) throws {
+    func encode(_ value: Float, forKey key: Key) {
         if useKeys {
             data.encode(key.stringValue)
         }
@@ -232,7 +232,7 @@ private class PostcardKeyedEncoding<Key: CodingKey>: KeyedEncodingContainerProto
         count += prependLength ? 1 : 0
     }
 
-    func encode(_ value: Int, forKey key: Key) throws {
+    func encode(_ value: Int, forKey key: Key) {
         if useKeys {
             data.encode(key.stringValue)
         }
@@ -243,7 +243,7 @@ private class PostcardKeyedEncoding<Key: CodingKey>: KeyedEncodingContainerProto
         count += prependLength ? 1 : 0
     }
 
-    func encode(_ value: Int8, forKey key: Key) throws {
+    func encode(_ value: Int8, forKey key: Key) {
         if useKeys {
             data.encode(key.stringValue)
         }
@@ -254,7 +254,7 @@ private class PostcardKeyedEncoding<Key: CodingKey>: KeyedEncodingContainerProto
         count += prependLength ? 1 : 0
     }
 
-    func encode(_ value: Int16, forKey key: Key) throws {
+    func encode(_ value: Int16, forKey key: Key) {
         if useKeys {
             data.encode(key.stringValue)
         }
@@ -265,7 +265,7 @@ private class PostcardKeyedEncoding<Key: CodingKey>: KeyedEncodingContainerProto
         count += prependLength ? 1 : 0
     }
 
-    func encode(_ value: Int32, forKey key: Key) throws {
+    func encode(_ value: Int32, forKey key: Key) {
         if useKeys {
             data.encode(key.stringValue)
         }
@@ -276,7 +276,7 @@ private class PostcardKeyedEncoding<Key: CodingKey>: KeyedEncodingContainerProto
         count += prependLength ? 1 : 0
     }
 
-    func encode(_ value: Int64, forKey key: Key) throws {
+    func encode(_ value: Int64, forKey key: Key) {
         if useKeys {
             data.encode(key.stringValue)
         }
@@ -287,7 +287,7 @@ private class PostcardKeyedEncoding<Key: CodingKey>: KeyedEncodingContainerProto
         count += prependLength ? 1 : 0
     }
 
-    func encode(_ value: UInt, forKey key: Key) throws {
+    func encode(_ value: UInt, forKey key: Key) {
         if useKeys {
             data.encode(key.stringValue)
         }
@@ -298,7 +298,7 @@ private class PostcardKeyedEncoding<Key: CodingKey>: KeyedEncodingContainerProto
         count += prependLength ? 1 : 0
     }
 
-    func encode(_ value: UInt8, forKey key: Key) throws {
+    func encode(_ value: UInt8, forKey key: Key) {
         if useKeys {
             data.encode(key.stringValue)
         }
@@ -309,7 +309,7 @@ private class PostcardKeyedEncoding<Key: CodingKey>: KeyedEncodingContainerProto
         count += prependLength ? 1 : 0
     }
 
-    func encode(_ value: UInt16, forKey key: Key) throws {
+    func encode(_ value: UInt16, forKey key: Key) {
         if useKeys {
             data.encode(key.stringValue)
         }
@@ -320,7 +320,7 @@ private class PostcardKeyedEncoding<Key: CodingKey>: KeyedEncodingContainerProto
         count += prependLength ? 1 : 0
     }
 
-    func encode(_ value: UInt32, forKey key: Key) throws {
+    func encode(_ value: UInt32, forKey key: Key) {
         if useKeys {
             data.encode(key.stringValue)
         }
@@ -331,7 +331,7 @@ private class PostcardKeyedEncoding<Key: CodingKey>: KeyedEncodingContainerProto
         count += prependLength ? 1 : 0
     }
 
-    func encode(_ value: UInt64, forKey key: Key) throws {
+    func encode(_ value: UInt64, forKey key: Key) {
         if useKeys {
             data.encode(key.stringValue)
         }
@@ -395,7 +395,7 @@ private class PostcardKeyedEncoding<Key: CodingKey>: KeyedEncodingContainerProto
         return superEncoder()
     }
 
-    func encodeIfPresent(_ value: Bool?, forKey key: Key) throws {
+    func encodeIfPresent(_ value: Bool?, forKey key: Key) {
         if useKeys {
             data.encode(key.stringValue)
         }
@@ -411,7 +411,7 @@ private class PostcardKeyedEncoding<Key: CodingKey>: KeyedEncodingContainerProto
         count += prependLength ? 1 : 0
     }
 
-    func encodeIfPresent(_ value: String?, forKey key: Key) throws {
+    func encodeIfPresent(_ value: String?, forKey key: Key) {
         if useKeys {
             data.encode(key.stringValue)
         }
@@ -427,7 +427,7 @@ private class PostcardKeyedEncoding<Key: CodingKey>: KeyedEncodingContainerProto
         count += prependLength ? 1 : 0
     }
 
-    func encodeIfPresent(_ value: Double?, forKey key: Key) throws {
+    func encodeIfPresent(_ value: Double?, forKey key: Key) {
         if useKeys {
             data.encode(key.stringValue)
         }
@@ -443,7 +443,7 @@ private class PostcardKeyedEncoding<Key: CodingKey>: KeyedEncodingContainerProto
         count += prependLength ? 1 : 0
     }
 
-    func encodeIfPresent(_ value: Float?, forKey key: Key) throws {
+    func encodeIfPresent(_ value: Float?, forKey key: Key) {
         if useKeys {
             data.encode(key.stringValue)
         }
@@ -456,7 +456,7 @@ private class PostcardKeyedEncoding<Key: CodingKey>: KeyedEncodingContainerProto
         count += prependLength ? 1 : 0
     }
 
-    func encodeIfPresent(_ value: Int?, forKey key: Key) throws {
+    func encodeIfPresent(_ value: Int?, forKey key: Key) {
         if useKeys {
             data.encode(key.stringValue)
         }
@@ -469,7 +469,7 @@ private class PostcardKeyedEncoding<Key: CodingKey>: KeyedEncodingContainerProto
         count += prependLength ? 1 : 0
     }
 
-    func encodeIfPresent(_ value: Int8?, forKey key: Key) throws {
+    func encodeIfPresent(_ value: Int8?, forKey key: Key) {
         if useKeys {
             data.encode(key.stringValue)
         }
@@ -482,7 +482,7 @@ private class PostcardKeyedEncoding<Key: CodingKey>: KeyedEncodingContainerProto
         count += prependLength ? 1 : 0
     }
 
-    func encodeIfPresent(_ value: Int16?, forKey key: Key) throws {
+    func encodeIfPresent(_ value: Int16?, forKey key: Key) {
         if useKeys {
             data.encode(key.stringValue)
         }
@@ -495,7 +495,7 @@ private class PostcardKeyedEncoding<Key: CodingKey>: KeyedEncodingContainerProto
         count += prependLength ? 1 : 0
     }
 
-    func encodeIfPresent(_ value: Int32?, forKey key: Key) throws {
+    func encodeIfPresent(_ value: Int32?, forKey key: Key) {
         if useKeys {
             data.encode(key.stringValue)
         }
@@ -508,7 +508,7 @@ private class PostcardKeyedEncoding<Key: CodingKey>: KeyedEncodingContainerProto
         count += prependLength ? 1 : 0
     }
 
-    func encodeIfPresent(_ value: Int64?, forKey key: Key) throws {
+    func encodeIfPresent(_ value: Int64?, forKey key: Key) {
         if useKeys {
             data.encode(key.stringValue)
         }
@@ -521,7 +521,7 @@ private class PostcardKeyedEncoding<Key: CodingKey>: KeyedEncodingContainerProto
         count += prependLength ? 1 : 0
     }
 
-    func encodeIfPresent(_ value: UInt?, forKey key: Key) throws {
+    func encodeIfPresent(_ value: UInt?, forKey key: Key) {
         if useKeys {
             data.encode(key.stringValue)
         }
@@ -534,7 +534,7 @@ private class PostcardKeyedEncoding<Key: CodingKey>: KeyedEncodingContainerProto
         count += prependLength ? 1 : 0
     }
 
-    func encodeIfPresent(_ value: UInt8?, forKey key: Key) throws {
+    func encodeIfPresent(_ value: UInt8?, forKey key: Key) {
         if useKeys {
             data.encode(key.stringValue)
         }
@@ -547,7 +547,7 @@ private class PostcardKeyedEncoding<Key: CodingKey>: KeyedEncodingContainerProto
         count += prependLength ? 1 : 0
     }
 
-    func encodeIfPresent(_ value: UInt16?, forKey key: Key) throws {
+    func encodeIfPresent(_ value: UInt16?, forKey key: Key) {
         if useKeys {
             data.encode(key.stringValue)
         }
@@ -560,7 +560,7 @@ private class PostcardKeyedEncoding<Key: CodingKey>: KeyedEncodingContainerProto
         count += prependLength ? 1 : 0
     }
 
-    func encodeIfPresent(_ value: UInt32?, forKey key: Key) throws {
+    func encodeIfPresent(_ value: UInt32?, forKey key: Key) {
         if useKeys {
             data.encode(key.stringValue)
         }
@@ -573,7 +573,7 @@ private class PostcardKeyedEncoding<Key: CodingKey>: KeyedEncodingContainerProto
         count += prependLength ? 1 : 0
     }
 
-    func encodeIfPresent(_ value: UInt64?, forKey key: Key) throws {
+    func encodeIfPresent(_ value: UInt64?, forKey key: Key) {
         if useKeys {
             data.encode(key.stringValue)
         }
@@ -623,77 +623,77 @@ private class PostcardUnkeyedEncoding: UnkeyedEncodingContainer {
         }
     }
 
-    func encodeNil() throws {
+    func encodeNil() {
         data.encodeNil()
         count += 1
     }
 
-    func encode(_ value: Bool) throws {
+    func encode(_ value: Bool) {
         data.encode(value)
         count += 1
     }
 
-    func encode(_ value: String) throws {
+    func encode(_ value: String) {
         data.encode(value)
         count += 1
     }
 
-    func encode(_ value: Double) throws {
+    func encode(_ value: Double) {
         data.encode(value)
         count += 1
     }
 
-    func encode(_ value: Float) throws {
+    func encode(_ value: Float) {
         data.encode(value)
         count += 1
     }
 
-    func encode(_ value: Int) throws {
+    func encode(_ value: Int) {
         data.encode(value)
         count += 1
     }
 
-    func encode(_ value: Int8) throws {
+    func encode(_ value: Int8) {
         data.encode(value)
         count += 1
     }
 
-    func encode(_ value: Int16) throws {
+    func encode(_ value: Int16) {
         data.encode(value)
         count += 1
     }
 
-    func encode(_ value: Int32) throws {
+    func encode(_ value: Int32) {
         data.encode(value)
         count += 1
     }
 
-    func encode(_ value: Int64) throws {
+    func encode(_ value: Int64) {
         data.encode(value)
         count += 1
     }
 
-    func encode(_ value: UInt) throws {
+    func encode(_ value: UInt) {
         data.encode(value)
         count += 1
     }
 
-    func encode(_ value: UInt8) throws {
+    func encode(_ value: UInt8) {
         data.encode(value)
         count += 1
     }
 
-    func encode(_ value: UInt16) throws {
+    func encode(_ value: UInt16) {
         data.encode(value)
         count += 1
     }
 
-    func encode(_ value: UInt32) throws {
+    func encode(_ value: UInt32) {
         data.encode(value)
         count += 1
     }
 
-    func encode(_ value: UInt64) throws {
+    func encode(_ value: UInt64) {
         data.encode(value)
         count += 1
     }
@@ -704,7 +704,7 @@ private class PostcardUnkeyedEncoding: UnkeyedEncodingContainer {
         count += 1
     }
 
-    func encodeIfPresent(_ value: Bool?) throws {
+    func encodeIfPresent(_ value: Bool?) {
         if let value {
             data.encode(UInt8(1))
             data.encode(value)
@@ -714,7 +714,7 @@ private class PostcardUnkeyedEncoding: UnkeyedEncodingContainer {
         count += 1
     }
 
-    func encodeIfPresent(_ value: String?) throws {
+    func encodeIfPresent(_ value: String?) {
         if let value {
             data.encode(UInt8(1))
             data.encode(value)
@@ -724,7 +724,7 @@ private class PostcardUnkeyedEncoding: UnkeyedEncodingContainer {
         count += 1
     }
 
-    func encodeIfPresent(_ value: Double?) throws {
+    func encodeIfPresent(_ value: Double?) {
         if let value {
             data.encode(UInt8(1))
             data.encode(value)
@@ -734,7 +734,7 @@ private class PostcardUnkeyedEncoding: UnkeyedEncodingContainer {
         count += 1
     }
 
-    func encodeIfPresent(_ value: Float?) throws {
+    func encodeIfPresent(_ value: Float?) {
         if let value {
             data.encode(UInt8(1))
             data.encode(value)
@@ -744,7 +744,7 @@ private class PostcardUnkeyedEncoding: UnkeyedEncodingContainer {
         count += 1
     }
 
-    func encodeIfPresent(_ value: Int?) throws {
+    func encodeIfPresent(_ value: Int?) {
         if let value {
             data.encode(UInt8(1))
             data.encode(value)
@@ -754,7 +754,7 @@ private class PostcardUnkeyedEncoding: UnkeyedEncodingContainer {
         count += 1
     }
 
-    func encodeIfPresent(_ value: Int8?) throws {
+    func encodeIfPresent(_ value: Int8?) {
         if let value {
             data.encode(UInt8(1))
             data.encode(value)
@@ -764,7 +764,7 @@ private class PostcardUnkeyedEncoding: UnkeyedEncodingContainer {
         count += 1
     }
 
-    func encodeIfPresent(_ value: Int16?) throws {
+    func encodeIfPresent(_ value: Int16?) {
         if let value {
             data.encode(UInt8(1))
             data.encode(value)
@@ -774,7 +774,7 @@ private class PostcardUnkeyedEncoding: UnkeyedEncodingContainer {
         count += 1
     }
 
-    func encodeIfPresent(_ value: Int32?) throws {
+    func encodeIfPresent(_ value: Int32?) {
         if let value {
             data.encode(UInt8(1))
             data.encode(value)
@@ -784,7 +784,7 @@ private class PostcardUnkeyedEncoding: UnkeyedEncodingContainer {
         count += 1
     }
 
-    func encodeIfPresent(_ value: Int64?) throws {
+    func encodeIfPresent(_ value: Int64?) {
         if let value {
             data.encode(UInt8(1))
             data.encode(value)
@@ -794,7 +794,7 @@ private class PostcardUnkeyedEncoding: UnkeyedEncodingContainer {
         count += 1
     }
 
-    func encodeIfPresent(_ value: UInt?) throws {
+    func encodeIfPresent(_ value: UInt?) {
         if let value {
             data.encode(UInt8(1))
             data.encode(value)
@@ -804,7 +804,7 @@ private class PostcardUnkeyedEncoding: UnkeyedEncodingContainer {
         count += 1
     }
 
-    func encodeIfPresent(_ value: UInt8?) throws {
+    func encodeIfPresent(_ value: UInt8?) {
         if let value {
             data.encode(UInt8(1))
             data.encode(value)
@@ -814,7 +814,7 @@ private class PostcardUnkeyedEncoding: UnkeyedEncodingContainer {
         count += 1
     }
 
-    func encodeIfPresent(_ value: UInt16?) throws {
+    func encodeIfPresent(_ value: UInt16?) {
         if let value {
             data.encode(UInt8(1))
             data.encode(value)
@@ -824,7 +824,7 @@ private class PostcardUnkeyedEncoding: UnkeyedEncodingContainer {
         count += 1
     }
 
-    func encodeIfPresent(_ value: UInt32?) throws {
+    func encodeIfPresent(_ value: UInt32?) {
         if let value {
             data.encode(UInt8(1))
             data.encode(value)
@@ -834,7 +834,7 @@ private class PostcardUnkeyedEncoding: UnkeyedEncodingContainer {
         count += 1
     }
 
-    func encodeIfPresent(_ value: UInt64?) throws {
+    func encodeIfPresent(_ value: UInt64?) {
         if let value {
             data.encode(UInt8(1))
             data.encode(value)
@@ -882,63 +882,63 @@ private struct PostcardSingleValueEncoding: SingleValueEncodingContainer {
 
     var codingPath: [CodingKey] = []
 
-    mutating func encodeNil() throws {
+    mutating func encodeNil() {
         data.encodeNil()
     }
 
-    mutating func encode(_ value: Bool) throws {
+    mutating func encode(_ value: Bool) {
         data.encode(value)
     }
 
-    mutating func encode(_ value: String) throws {
+    mutating func encode(_ value: String) {
         data.encode(value)
     }
 
-    mutating func encode(_ value: Double) throws {
+    mutating func encode(_ value: Double) {
         data.encode(value)
     }
 
-    mutating func encode(_ value: Float) throws {
+    mutating func encode(_ value: Float) {
         data.encode(value)
     }
 
-    mutating func encode(_ value: Int) throws {
+    mutating func encode(_ value: Int) {
         data.encode(value)
     }
 
-    mutating func encode(_ value: Int8) throws {
+    mutating func encode(_ value: Int8) {
         data.encode(value)
     }
 
-    mutating func encode(_ value: Int16) throws {
+    mutating func encode(_ value: Int16) {
         data.encode(value)
     }
 
-    mutating func encode(_ value: Int32) throws {
+    mutating func encode(_ value: Int32) {
         data.encode(value)
     }
 
-    mutating func encode(_ value: Int64) throws {
+    mutating func encode(_ value: Int64) {
         data.encode(value)
     }
 
-    mutating func encode(_ value: UInt) throws {
+    mutating func encode(_ value: UInt) {
         data.encode(value)
     }
 
-    mutating func encode(_ value: UInt8) throws {
+    mutating func encode(_ value: UInt8) {
         data.encode(value)
     }
 
-    mutating func encode(_ value: UInt16) throws {
+    mutating func encode(_ value: UInt16) {
         data.encode(value)
     }
 
-    mutating func encode(_ value: UInt32) throws {
+    mutating func encode(_ value: UInt32) {
         data.encode(value)
     }
 
-    mutating func encode(_ value: UInt64) throws {
+    mutating func encode(_ value: UInt64) {
         data.encode(value)
     }
 

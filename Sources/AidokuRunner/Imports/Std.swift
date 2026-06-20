@@ -14,7 +14,7 @@ struct Std: SourceLibrary {
     let module: Module
     var store: GlobalStore
 
-    func link() throws {
+    func link() {
         try? module.linkFunction(name: "destroy", namespace: Self.namespace, function: destroy)
         try? module.linkFunction(name: "buffer_len", namespace: Self.namespace, function: bufferLength)
         try? module.linkFunction(name: "read_buffer", namespace: Self.namespace, function: readBuffer)

@@ -508,7 +508,7 @@ extension Setting: Codable {
         let type = try? container.decode(SettingType.self, forKey: .type)
         guard let type else { throw DecodingError.invalidType }
         key = (try? container.decode(String.self, forKey: .key)) ?? ""
-        if type.requiresKey && key.isEmpty {
+        if type.requiresKey, key.isEmpty {
             throw DecodingError.missingKey
         }
         title = (try? container.decode(String.self, forKey: .title)) ?? ""

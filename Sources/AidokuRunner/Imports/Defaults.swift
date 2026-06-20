@@ -15,7 +15,7 @@ struct Defaults: SourceLibrary {
     let store: GlobalStore
     let defaultNamespace: String
 
-    func link() throws {
+    func link() {
         try? module.linkFunction(name: "get", namespace: Self.namespace, function: get)
         try? module.linkFunction(name: "set", namespace: Self.namespace, function: set)
     }

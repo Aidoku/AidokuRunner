@@ -24,7 +24,7 @@ struct Net: SourceLibrary {
 
     private let rateLimit = RateLimit()
 
-    func link() throws {
+    func link() {
         try? module.linkFunction(name: "init", namespace: Self.namespace, function: initialize)
         try? module.linkFunction(name: "send", namespace: Self.namespace, function: send)
         try? module.linkFunction(name: "send_all", namespace: Self.namespace, function: sendAll)

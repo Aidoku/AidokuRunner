@@ -56,7 +56,7 @@ private class DecodingContainer {
     func decode(_: String.Type) throws -> String {
         let length: UInt64 = try decodeVarInt(data, currentIndex: &currentIndex)
         let endIndex = currentIndex.advanced(by: Int(truncatingIfNeeded: length))
-        guard endIndex <= data.endIndex && endIndex >= currentIndex else {
+        guard endIndex <= data.endIndex, endIndex >= currentIndex else {
             throw DecodingError.dataCorrupted(DecodingError.Context(
                 codingPath: [],
                 debugDescription: "Invalid string length")
@@ -164,7 +164,7 @@ private class PostcardDecoding: Decoder {
         self.decodingContainer = decodingContainer
     }
 
-    func container<Key>(keyedBy _: Key.Type) throws -> KeyedDecodingContainer<Key> where Key: CodingKey {
+    func container<Key>(keyedBy _: Key.Type) -> KeyedDecodingContainer<Key> where Key: CodingKey {
         KeyedDecodingContainer(
             PostcardKeyedDecoding<Key>(
                 decodingContainer: decodingContainer,
@@ -174,7 +174,7 @@ private class PostcardDecoding: Decoder {
         )
     }
 
-    func unkeyedContainer() throws -> any UnkeyedDecodingContainer {
+    func unkeyedContainer() -> any UnkeyedDecodingContainer {
         PostcardUnkeyedDecoding(
             decodingContainer: decodingContainer,
             codingPath: codingPath,
@@ -182,7 +182,7 @@ private class PostcardDecoding: Decoder {
         )
     }
 
-    func singleValueContainer() throws -> any SingleValueDecodingContainer {
+    func singleValueContainer() -> any SingleValueDecodingContainer {
         PostcardSingleValueDecoding(
             decodingContainer: decodingContainer,
             codingPath: codingPath,
@@ -401,7 +401,7 @@ private class PostcardKeyedDecoding<Key: CodingKey>: KeyedDecodingContainerProto
     func nestedContainer<NestedKey>(
         keyedBy _: NestedKey.Type,
         forKey _: Key
-    ) throws -> KeyedDecodingContainer<NestedKey> where NestedKey: CodingKey {
+    ) -> KeyedDecodingContainer<NestedKey> where NestedKey: CodingKey {
         KeyedDecodingContainer(
             PostcardKeyedDecoding<NestedKey>(
                 decodingContainer: decodingContainer,
@@ -411,7 +411,7 @@ private class PostcardKeyedDecoding<Key: CodingKey>: KeyedDecodingContainerProto
         )
     }
 
-    func nestedUnkeyedContainer(forKey _: Key) throws -> UnkeyedDecodingContainer {
+    func nestedUnkeyedContainer(forKey _: Key) -> UnkeyedDecodingContainer {
         PostcardUnkeyedDecoding(
             decodingContainer: decodingContainer,
             codingPath: codingPath,
@@ -419,11 +419,11 @@ private class PostcardKeyedDecoding<Key: CodingKey>: KeyedDecodingContainerProto
         )
     }
 
-    func superDecoder() throws -> Decoder {
+    func superDecoder() -> Decoder {
         PostcardDecoding(decodingContainer: decodingContainer)
     }
 
-    func superDecoder(forKey _: Key) throws -> Decoder {
+    func superDecoder(forKey _: Key) -> Decoder {
         PostcardDecoding(decodingContainer: decodingContainer)
     }
 }
@@ -674,7 +674,7 @@ private class PostcardUnkeyedDecoding: UnkeyedDecodingContainer {
 
     func nestedContainer<NestedKey>(
         keyedBy _: NestedKey.Type
-    ) throws -> KeyedDecodingContainer<NestedKey> where NestedKey: CodingKey {
+    ) -> KeyedDecodingContainer<NestedKey> where NestedKey: CodingKey {
         currentCount += 1
         return KeyedDecodingContainer(
             PostcardKeyedDecoding<NestedKey>(
@@ -685,7 +685,7 @@ private class PostcardUnkeyedDecoding: UnkeyedDecodingContainer {
         )
     }
 
-    func nestedUnkeyedContainer() throws -> UnkeyedDecodingContainer {
+    func nestedUnkeyedContainer() -> UnkeyedDecodingContainer {
         currentCount += 1
         return PostcardUnkeyedDecoding(
             decodingContainer: decodingContainer,
@@ -694,7 +694,7 @@ private class PostcardUnkeyedDecoding: UnkeyedDecodingContainer {
         )
     }
 
-    func superDecoder() throws -> Decoder {
+    func superDecoder() -> Decoder {
         currentCount += 1
         return PostcardDecoding(decodingContainer: decodingContainer)
     }

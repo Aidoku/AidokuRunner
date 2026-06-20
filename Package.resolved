@@ -1,13 +1,13 @@
 {
-  "originHash" : "6975247d7e0ffe4d7ae4855fea18ca119842962802e7f5849c25984a8c89d041",
+  "originHash" : "786ea7661424eb3ab3127d77f910b441647ff35155f787eb758ea287af547d47",
   "pins" : [
     {
       "identity" : "swiftlintplugins",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/SimplyDanny/SwiftLintPlugins",
       "state" : {
-        "revision" : "8545ddf4de043e6f2051c5cf204f39ef778ebf6b",
-        "version" : "0.59.1"
+        "revision" : "18d8d2d18e1668006d1d209e0b5f5e06c1da7cb5",
+        "version" : "0.63.3"
       }
     },
     {
@@ -15,8 +15,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/scinfu/SwiftSoup.git",
       "state" : {
-        "revision" : "04a5da442816f764b2a8513c38420b4e6605145b",
-        "version" : "2.10.1"
+        "revision" : "49dcadd93161f4a44b4994d3a3e8de9f085aface",
+        "version" : "2.13.5"
       }
     },
     {
@@ -25,7 +25,7 @@
       "location" : "https://github.com/Skittyblock/Wasm3",
       "state" : {
         "branch" : "main",
-        "revision" : "565f4858aa59976ab27719ec02238524eb27030d"
+        "revision" : "8c0e4ef3dec8e88a94c19959c3fe100cf50c548b"
       }
     }
   ],

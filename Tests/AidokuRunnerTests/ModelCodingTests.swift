@@ -11,10 +11,10 @@ import XCTest
 final class ModelCodingTests: XCTestCase {
     func testMangaCoding() throws {
         let manga = Manga(
+            sourceKey: "",
             key: "1",
             title: "Manga 1",
             cover: nil,
-            alternateCovers: nil,
             artists: nil,
             authors: ["Author"],
             description: "Description",
@@ -25,16 +25,14 @@ final class ModelCodingTests: XCTestCase {
             viewer: .webtoon,
             updateStrategy: .always,
             nextUpdateTime: nil,
-            extraData: nil,
             chapters: nil
         )
-        let data = try ByteEncoder().encode(manga)
-        let decodedManga = try ByteDecoder.decode(Manga.self, from: data)
+        let data = try PostcardEncoder().encode(manga)
+        let decodedManga = try PostcardDecoder().decode(Manga.self, from: data)
 
         XCTAssertEqual(manga.key, decodedManga.key)
         XCTAssertEqual(manga.title, decodedManga.title)
         XCTAssertEqual(manga.cover, decodedManga.cover)
-        XCTAssertEqual(manga.alternateCovers, decodedManga.alternateCovers)
         XCTAssertEqual(manga.artists, decodedManga.artists)
         XCTAssertEqual(manga.authors, decodedManga.authors)
         XCTAssertEqual(manga.description, decodedManga.description)
@@ -45,7 +43,6 @@ final class ModelCodingTests: XCTestCase {
         XCTAssertEqual(manga.viewer, decodedManga.viewer)
         XCTAssertEqual(manga.updateStrategy, decodedManga.updateStrategy)
         XCTAssertEqual(manga.nextUpdateTime, decodedManga.nextUpdateTime)
-        XCTAssertEqual(manga.extraData, decodedManga.extraData)
         XCTAssertEqual(manga.chapters?.count, decodedManga.chapters?.count)
     }
 }

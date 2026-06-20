@@ -102,7 +102,7 @@ final class DemoSourceRunner: Runner, Sendable {
     let partialHomePublisher: SinglePublisher<Home>? = nil
     let partialMangaPublisher: SinglePublisher<Manga>? = .init()
 
-    func getHome() throws -> Home {
+    func getHome() -> Home {
         Home(components: [
             .init(
                 title: "Big Scroller",
@@ -255,7 +255,7 @@ final class DemoSourceRunner: Runner, Sendable {
         query: String?,
         page: Int,
         filters _: [FilterValue]
-    ) throws -> MangaPageResult {
+    ) -> MangaPageResult {
         let offset = (page - 1) * 20
         return MangaPageResult(
             entries: {
@@ -282,7 +282,7 @@ final class DemoSourceRunner: Runner, Sendable {
         )
     }
 
-    func getMangaUpdate(manga: Manga, needsDetails: Bool, needsChapters: Bool) async throws -> Manga {
+    func getMangaUpdate(manga: Manga, needsDetails: Bool, needsChapters: Bool) async -> Manga {
         var manga = manga
 
         if needsDetails {
@@ -319,7 +319,7 @@ final class DemoSourceRunner: Runner, Sendable {
         return manga
     }
 
-    func getPageList(manga _: Manga, chapter: Chapter) throws -> [Page] {
+    func getPageList(manga _: Manga, chapter: Chapter) -> [Page] {
         if chapter.id == "3" {
             // text only chapter
             [
@@ -349,7 +349,7 @@ final class DemoSourceRunner: Runner, Sendable {
         }
     }
 
-    func getPageDescription(page _: Page) throws -> String? {
+    func getPageDescription(page _: Page) -> String? {
         "Description"
     }
 }

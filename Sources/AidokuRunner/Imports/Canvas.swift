@@ -22,7 +22,7 @@ struct Canvas: SourceLibrary {
     let module: Module
     let store: GlobalStore
 
-    func link() throws {
+    func link() {
         try? module.linkFunction(name: "new_context", namespace: Self.namespace, function: newContext)
         try? module.linkFunction(name: "set_transform", namespace: Self.namespace, function: setTransform)
         try? module.linkFunction(name: "draw_image", namespace: Self.namespace, function: drawImage)

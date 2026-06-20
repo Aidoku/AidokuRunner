@@ -15,7 +15,7 @@ struct Html: SourceLibrary {
     let module: Module
     let store: GlobalStore
 
-    func link() throws {
+    func link() {
         try? module.linkFunction(name: "parse", namespace: Self.namespace, function: parse)
         try? module.linkFunction(name: "parse_fragment", namespace: Self.namespace, function: parseFragment)
         try? module.linkFunction(name: "escape", namespace: Self.namespace, function: escape)

@@ -15,7 +15,7 @@ struct Env: SourceLibrary {
     let partialValueHandler: CallbackHandler
     let printHandler: (String) -> Void
 
-    func link() throws {
+    func link() {
         try? module.linkFunction(name: "abort", namespace: Self.namespace, function: abort)
         try? module.linkFunction(name: "print", namespace: Self.namespace, function: envPrint)
         try? module.linkFunction(name: "sleep", namespace: Self.namespace, function: sleep)
