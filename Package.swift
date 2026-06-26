@@ -23,10 +23,10 @@ let package = Package(
             dependencies: ["Wasm3", "SwiftSoup"],
             plugins: [.plugin(name: "SwiftLintBuildToolPlugin", package: "SwiftLintPlugins")]
         ),
-
         .testTarget(
             name: "AidokuRunnerTests",
-            dependencies: ["AidokuRunner"]
+            dependencies: ["AidokuRunner"],
+            resources: [.copy("Resources/Payload")]
         )
     ],
     swiftLanguageModes: [.v6]

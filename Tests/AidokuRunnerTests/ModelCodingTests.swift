@@ -6,10 +6,10 @@
 //
 
 @testable import AidokuRunner
-import XCTest
+import Testing
 
-final class ModelCodingTests: XCTestCase {
-    func testMangaCoding() throws {
+struct ModelCodingTests {
+    @Test func testMangaCoding() throws {
         let manga = Manga(
             sourceKey: "",
             key: "1",
@@ -30,19 +30,19 @@ final class ModelCodingTests: XCTestCase {
         let data = try PostcardEncoder().encode(manga)
         let decodedManga = try PostcardDecoder().decode(Manga.self, from: data)
 
-        XCTAssertEqual(manga.key, decodedManga.key)
-        XCTAssertEqual(manga.title, decodedManga.title)
-        XCTAssertEqual(manga.cover, decodedManga.cover)
-        XCTAssertEqual(manga.artists, decodedManga.artists)
-        XCTAssertEqual(manga.authors, decodedManga.authors)
-        XCTAssertEqual(manga.description, decodedManga.description)
-        XCTAssertEqual(manga.url, decodedManga.url)
-        XCTAssertEqual(manga.tags, decodedManga.tags)
-        XCTAssertEqual(manga.status, decodedManga.status)
-        XCTAssertEqual(manga.contentRating, decodedManga.contentRating)
-        XCTAssertEqual(manga.viewer, decodedManga.viewer)
-        XCTAssertEqual(manga.updateStrategy, decodedManga.updateStrategy)
-        XCTAssertEqual(manga.nextUpdateTime, decodedManga.nextUpdateTime)
-        XCTAssertEqual(manga.chapters?.count, decodedManga.chapters?.count)
+        #expect(manga.key == decodedManga.key)
+        #expect(manga.title == decodedManga.title)
+        #expect(manga.cover == decodedManga.cover)
+        #expect(manga.artists == decodedManga.artists)
+        #expect(manga.authors == decodedManga.authors)
+        #expect(manga.description == decodedManga.description)
+        #expect(manga.url == decodedManga.url)
+        #expect(manga.tags == decodedManga.tags)
+        #expect(manga.status == decodedManga.status)
+        #expect(manga.contentRating == decodedManga.contentRating)
+        #expect(manga.viewer == decodedManga.viewer)
+        #expect(manga.updateStrategy == decodedManga.updateStrategy)
+        #expect(manga.nextUpdateTime == decodedManga.nextUpdateTime)
+        #expect(manga.chapters?.count == decodedManga.chapters?.count)
     }
 }
