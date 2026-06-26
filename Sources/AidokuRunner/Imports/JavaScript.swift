@@ -30,6 +30,11 @@ struct JavaScript: SourceLibrary {
         try? module.linkFunction(name: "webview_wait_for_load", namespace: Self.namespace, function: webViewWaitForLoad)
         try? module.linkFunction(name: "webview_eval", namespace: Self.namespace, function: webViewEval)
         try? module.linkFunction(name: "webview_eval_async", namespace: Self.namespace, function: webViewEvalAsync)
+        try? module.linkFunction(
+            name: "webview_add_user_script",
+            namespace: Self.namespace,
+            function: webViewAddUserScript
+        )
     }
 
     enum Result: Int32 {
@@ -282,5 +287,38 @@ extension JavaScript {
         }
 
         return store.store("\(result)")
+    }
+
+    // swiftlint:disable:next function_parameter_count
+    func webViewAddUserScript(
+        memory: Memory,
+        descriptor: Int32,
+        stringPointer: Int32,
+        length: Int32,
+        atDocumentEnd: Int32,
+        forMainFrameOnly: Int32
+    ) -> Int32 {
+        guard let webViewHandler = store.fetch(from: descriptor) as? WebViewHandler
+        else { return Result.invalidHandler.rawValue }
+
+        guard
+            stringPointer >= 0, length > 0,
+            let sourceString = try? memory.readString(offset: UInt32(stringPointer), length: UInt32(length))
+        else {
+            return Result.invalidString.rawValue
+        }
+
+        BlockingTask {
+            await MainActor.run {
+                let userScript = WKUserScript(
+                    source: sourceString,
+                    injectionTime: atDocumentEnd != 0 ? .atDocumentEnd : .atDocumentStart,
+                    forMainFrameOnly: forMainFrameOnly != 0
+                )
+                webViewHandler.webView.configuration.userContentController.addUserScript(userScript)
+            }
+        }.get()
+
+        return Result.success.rawValue
     }
 }
