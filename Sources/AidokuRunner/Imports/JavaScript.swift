@@ -24,6 +24,7 @@ struct JavaScript: SourceLibrary {
         try? module.linkFunction(name: "context_get", namespace: Self.namespace, function: contextGet)
 
         try? module.linkFunction(name: "webview_create", namespace: Self.namespace, function: webViewCreate)
+        try? module.linkFunction(name: "webview_set_rule_list", namespace: Self.namespace, function: webViewSetRuleList)
         try? module.linkFunction(name: "webview_load", namespace: Self.namespace, function: webViewLoad)
         try? module.linkFunction(name: "webview_load_html", namespace: Self.namespace, function: webViewLoadHtml)
         try? module.linkFunction(name: "webview_wait_for_load", namespace: Self.namespace, function: webViewWaitForLoad)
@@ -38,6 +39,7 @@ struct JavaScript: SourceLibrary {
         case invalidString = -3
         case invalidHandler = -4
         case invalidRequest = -5
+        case invalidRuleList = -6
     }
 }
 
@@ -130,6 +132,40 @@ extension JavaScript {
         }.get()
 
         return store.store(handler)
+    }
+
+    func webViewSetRuleList(
+        memory: Memory,
+        descriptor: Int32,
+        stringPointer: Int32,
+        length: Int32
+    ) -> Int32 {
+        guard let webViewHandler = store.fetch(from: descriptor) as? WebViewHandler
+        else { return Result.invalidHandler.rawValue }
+
+        guard
+            stringPointer >= 0, length > 0,
+            let jsonString = try? memory.readString(offset: UInt32(stringPointer), length: UInt32(length))
+        else {
+            return Result.invalidString.rawValue
+        }
+
+        let success = BlockingTask {
+            await Task { @MainActor in
+                do {
+                    try await webViewHandler.setRuleList(jsonString)
+                    return true
+                } catch {
+                    return false
+                }
+            }.value
+        }.get()
+
+        if success {
+            return Result.success.rawValue
+        } else {
+            return Result.invalidRuleList.rawValue
+        }
     }
 
     func webViewLoad(descriptor: Int32, requestDescriptor: Int32) -> Int32 {

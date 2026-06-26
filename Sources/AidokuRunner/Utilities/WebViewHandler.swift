@@ -26,8 +26,13 @@ class WebViewHandler: NSObject {
         loadedSemaphore.wait()
     }
 
-    func webView(_: WKWebView, didFinish _: WKNavigation) {
-        loadedSemaphore.signal()
+    func setRuleList(_ json: String) async throws {
+        let ruleList = try await WKContentRuleListStore.default().compileContentRuleList(
+            forIdentifier: "RuleList",
+            encodedContentRuleList: json
+        )
+        guard let ruleList else { return }
+        webView.configuration.userContentController.add(ruleList)
     }
 
     func evaluateAsyncJavaScript(_ javaScriptString: String) async throws -> Any? {
@@ -70,6 +75,12 @@ class WebViewHandler: NSObject {
     }
 }
 
+extension WebViewHandler: WKNavigationDelegate {
+    func webView(_: WKWebView, didFinish _: WKNavigation) {
+        loadedSemaphore.signal()
+    }
+}
+
 extension WebViewHandler: WKScriptMessageHandler {
     func userContentController(_: WKUserContentController, didReceive message: WKScriptMessage) {
         guard
@@ -96,5 +107,3 @@ extension WebViewHandler: WKScriptMessageHandler {
         }
     }
 }
-
-extension WebViewHandler: WKNavigationDelegate {}
