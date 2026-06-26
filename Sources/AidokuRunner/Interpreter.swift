@@ -47,10 +47,11 @@ public actor Interpreter {
         self.config = config
 
         // import functions (must be done before calling findFunction)
+        let printHandler = config.printHandler ?? { print($0) }
         Env(
             module: module,
             partialValueHandler: partialValueHandler,
-            printHandler: config.printHandler ?? { print($0) }
+            printHandler: printHandler
         ).link()
         Std(module: module, store: store).link()
         Defaults(module: module, store: store, defaultNamespace: sourceKey).link()
@@ -60,7 +61,7 @@ public actor Interpreter {
             requestHandler: config.requestHandler
         ).link()
         Html(module: module, store: store).link()
-        JavaScript(module: module, store: store).link()
+        JavaScript(module: module, store: store, printHandler: printHandler).link()
 #if canImport(UIKit)
         Canvas(module: module, store: store).link()
 #endif

@@ -15,10 +15,12 @@ struct JavaScript: SourceLibrary {
 
     let module: Module
     let store: GlobalStore
+    let printHandler: @Sendable (String) -> Void
 
     func link() {
         try? module.linkFunction(name: "context_create", namespace: Self.namespace, function: contextCreate)
         try? module.linkFunction(name: "context_eval", namespace: Self.namespace, function: contextEval)
+        try? module.linkFunction(name: "context_eval_async", namespace: Self.namespace, function: contextEvalAsync)
         try? module.linkFunction(name: "context_get", namespace: Self.namespace, function: contextGet)
 
         try? module.linkFunction(name: "webview_create", namespace: Self.namespace, function: webViewCreate)
@@ -26,6 +28,7 @@ struct JavaScript: SourceLibrary {
         try? module.linkFunction(name: "webview_load_html", namespace: Self.namespace, function: webViewLoadHtml)
         try? module.linkFunction(name: "webview_wait_for_load", namespace: Self.namespace, function: webViewWaitForLoad)
         try? module.linkFunction(name: "webview_eval", namespace: Self.namespace, function: webViewEval)
+        try? module.linkFunction(name: "webview_eval_async", namespace: Self.namespace, function: webViewEvalAsync)
     }
 
     enum Result: Int32 {
@@ -40,14 +43,14 @@ struct JavaScript: SourceLibrary {
 
 extension JavaScript {
     func contextCreate() -> Int32 {
-        guard let context = JSContext() else {
-            return Result.missingResult.rawValue
+        let context = IsolatedJSContext { [printHandler] _, exception in
+            printHandler("JS Exception: \(exception?.toString() ?? "Unknown")")
         }
         return store.store(context)
     }
 
     func contextEval(memory: Memory, descriptor: Int32, stringPointer: Int32, length: Int32) -> Int32 {
-        guard let context = store.fetch(from: descriptor) as? JSContext
+        guard let context = store.fetch(from: descriptor) as? IsolatedJSContext
         else { return Result.invalidContext.rawValue }
 
         guard
@@ -57,7 +60,36 @@ extension JavaScript {
             return Result.invalidString.rawValue
         }
 
-        let result = context.evaluateScript(jsString)?.toString()
+        let result = BlockingTask {
+            await context.evaluateScript(jsString)
+        }.get()
+
+        guard let result else {
+            return Result.missingResult.rawValue
+        }
+
+        return store.store(result)
+    }
+
+    func contextEvalAsync(memory: Memory, descriptor: Int32, stringPointer: Int32, length: Int32) -> Int32 {
+        guard let context = store.fetch(from: descriptor) as? IsolatedJSContext
+        else { return Result.invalidContext.rawValue }
+
+        guard
+            stringPointer >= 0, length > 0,
+            let jsString = try? memory.readString(offset: UInt32(stringPointer), length: UInt32(length))
+        else {
+            return Result.invalidString.rawValue
+        }
+
+        let result: String? = BlockingTask { [printHandler] in
+            do {
+                return try await context.evaluateAsyncScript(jsString)
+            } catch {
+                printHandler("JS Error: \(error.localizedDescription)")
+                return nil
+            }
+        }.get()
 
         guard let result else {
             return Result.missingResult.rawValue
@@ -67,7 +99,7 @@ extension JavaScript {
     }
 
     func contextGet(memory: Memory, descriptor: Int32, stringPointer: Int32, length: Int32) -> Int32 {
-        guard let context = store.fetch(from: descriptor) as? JSContext
+        guard let context = store.fetch(from: descriptor) as? IsolatedJSContext
         else { return Result.invalidContext.rawValue }
 
         guard
@@ -77,7 +109,9 @@ extension JavaScript {
             return Result.invalidString.rawValue
         }
 
-        let result = context.objectForKeyedSubscript(jsString)?.toString()
+        let result = BlockingTask {
+            await context.objectForKeyedSubscript(jsString)
+        }.get()
 
         guard let result else {
             return Result.missingResult.rawValue
@@ -185,25 +219,32 @@ extension JavaScript {
 
         return store.store("\(result)")
     }
-}
 
-@MainActor
-private class WebViewHandler: NSObject, WKNavigationDelegate {
-    let webView: WKWebView
+    func webViewEvalAsync(memory: Memory, descriptor: Int32, stringPointer: Int32, length: Int32) -> Int32 {
+        guard let webViewHandler = store.fetch(from: descriptor) as? WebViewHandler
+        else { return Result.invalidHandler.rawValue }
 
-    private let loadedSemaphore = DispatchSemaphore(value: 0)
+        guard
+            stringPointer >= 0, length > 0,
+            let jsString = try? memory.readString(offset: UInt32(stringPointer), length: UInt32(length))
+        else {
+            return Result.invalidString.rawValue
+        }
 
-    init(webView: WKWebView) {
-        self.webView = webView
-        super.init()
-        webView.navigationDelegate = self
-    }
+        let result: String? = BlockingTask {
+            await Task { @MainActor in
+                let result = try? await webViewHandler.evaluateAsyncJavaScript(jsString)
+                guard let result else {
+                    return nil
+                }
+                return "\(result)"
+            }.value
+        }.get()
 
-    nonisolated func waitForLoad() {
-        loadedSemaphore.wait()
-    }
+        guard let result else {
+            return Result.missingResult.rawValue
+        }
 
-    func webView(_: WKWebView, didFinish _: WKNavigation) {
-        loadedSemaphore.signal()
+        return store.store("\(result)")
     }
 }
