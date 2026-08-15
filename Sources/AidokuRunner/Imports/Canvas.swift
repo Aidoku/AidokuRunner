@@ -146,7 +146,7 @@ extension Canvas {
         context.flipVertically()
         context.draw(
             cgImage,
-            in: dstRect.adjustForFlippedCoordinates(imageHeight: CGFloat(cgImage.height))
+            in: dstRect.adjustForFlippedCoordinates(imageHeight: CGFloat(context.height))
         )
         context.restoreGState()
         return Result.success.rawValue
@@ -193,7 +193,7 @@ extension Canvas {
         context.flipVertically()
         context.draw(
             srcImage,
-            in: dstRect.adjustForFlippedCoordinates(imageHeight: CGFloat(cgImage.height))
+            in: dstRect.adjustForFlippedCoordinates(imageHeight: CGFloat(context.height))
         )
         context.restoreGState()
         return Result.success.rawValue
