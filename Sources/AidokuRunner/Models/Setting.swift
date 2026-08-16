@@ -349,6 +349,7 @@ public struct LoginSetting: Sendable, Codable, Hashable {
     public let callbackScheme: String?
     public let useEmail: Bool?
     public let localStorageKeys: [String]?
+    public let clearCookiesOnLogOut: Bool?
 
     public enum Method: String, Sendable, Codable {
         case basic
@@ -365,7 +366,8 @@ public struct LoginSetting: Sendable, Codable, Hashable {
         tokenUrl: String? = nil,
         callbackScheme: String? = nil,
         useEmail: Bool? = nil,
-        localStorageKeys: [String]? = nil
+        localStorageKeys: [String]? = nil,
+        clearCookiesOnLogOut: Bool = false
     ) {
         self.method = method
         self.url = url
@@ -376,6 +378,7 @@ public struct LoginSetting: Sendable, Codable, Hashable {
         self.callbackScheme = callbackScheme
         self.useEmail = useEmail
         self.localStorageKeys = localStorageKeys
+        self.clearCookiesOnLogOut = clearCookiesOnLogOut
     }
 }
 
