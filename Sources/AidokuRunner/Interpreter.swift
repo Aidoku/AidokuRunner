@@ -61,7 +61,12 @@ public actor Interpreter {
             requestHandler: config.requestHandler
         ).link()
         Html(module: module, store: store).link()
-        JavaScript(module: module, store: store, printHandler: printHandler).link()
+        JavaScript(
+            module: module,
+            store: store,
+            printHandler: printHandler,
+            webViewNamespace: sourceKey
+        ).link()
 #if canImport(UIKit)
         Canvas(module: module, store: store).link()
 #endif

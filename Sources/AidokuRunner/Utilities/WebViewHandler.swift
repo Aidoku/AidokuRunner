@@ -5,6 +5,7 @@
 //  Created by skitty on 6/26/26.
 //
 
+import CryptoKit
 import WebKit
 
 @MainActor
@@ -17,8 +18,18 @@ class WebViewHandler: NSObject {
 
     private static let asyncEvalHandlerName = "asyncEval"
 
-    init(webView: WKWebView) {
-        self.webView = webView
+    var cookieStore: WKHTTPCookieStore {
+        webView.configuration.websiteDataStore.httpCookieStore
+    }
+
+    init(id: String) {
+        let config = WKWebViewConfiguration()
+        if #available(iOS 17.0, *) {
+            config.websiteDataStore = .init(forIdentifier: UUID(sourceKey: id))
+        } else {
+            config.websiteDataStore = .nonPersistent()
+        }
+        self.webView = WKWebView(frame: .zero, configuration: config)
         super.init()
         webView.navigationDelegate = self
     }

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import WebKit
 
 public final class Source: Sendable {
     public let url: URL?
@@ -176,6 +177,11 @@ public final class Source: Sendable {
         let settings = Self.getExtraSettings(config: config, languages: languages, urls: urls) + staticSettings
         self.staticSettings = settings
         loadSettingsDefaults(settings: settings)
+    }
+
+    public func clearCache() async {
+        guard #available(iOS 17.0, *) else { return }
+        await WKWebsiteDataStore(forIdentifier: UUID(sourceKey: key)).clearRecords()
     }
 
     static func getExtraSettings(config: SourceInfo.Configuration?, languages: [String], urls: [URL]) -> [Setting] {

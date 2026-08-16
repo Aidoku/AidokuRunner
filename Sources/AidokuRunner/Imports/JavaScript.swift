@@ -16,6 +16,7 @@ struct JavaScript: SourceLibrary {
     let module: Module
     let store: GlobalStore
     let printHandler: @Sendable (String) -> Void
+    let webViewNamespace: String
 
     func link() {
         try? module.linkFunction(name: "context_create", namespace: Self.namespace, function: contextCreate)
@@ -35,6 +36,12 @@ struct JavaScript: SourceLibrary {
             namespace: Self.namespace,
             function: webViewAddUserScript
         )
+        try? module.linkFunction(name: "webview_get_cookies", namespace: Self.namespace, function: webViewGetCookies)
+        try? module.linkFunction(
+            name: "webview_delete_cookie",
+            namespace: Self.namespace,
+            function: webViewDeleteCookie
+        )
     }
 
     enum Result: Int32 {
@@ -45,6 +52,8 @@ struct JavaScript: SourceLibrary {
         case invalidHandler = -4
         case invalidRequest = -5
         case invalidRuleList = -6
+        case failedEncoding = -7
+        case missingCookie = -8
     }
 }
 
@@ -130,9 +139,9 @@ extension JavaScript {
 
 extension JavaScript {
     func webViewCreate() -> Int32 {
-        let handler = BlockingTask {
+        let handler = BlockingTask { [webViewNamespace] in
             await MainActor.run {
-                WebViewHandler(webView: WKWebView())
+                WebViewHandler(id: webViewNamespace)
             }
         }.get()
 
@@ -320,5 +329,73 @@ extension JavaScript {
         }.get()
 
         return Result.success.rawValue
+    }
+
+    func webViewGetCookies(descriptor: Int32) -> Int32 {
+        guard let webViewHandler = store.fetch(from: descriptor) as? WebViewHandler
+        else { return Result.invalidHandler.rawValue }
+
+        let cookies = BlockingTask {
+            await webViewHandler.webView.configuration.websiteDataStore.httpCookieStore.allCookies()
+        }
+        .get()
+
+        do {
+            return try store.storeEncoded(cookies.map(Cookie.init))
+        } catch {
+            return Result.failedEncoding.rawValue
+        }
+    }
+
+    // swiftlint:disable:next function_parameter_count
+    func webViewDeleteCookie(
+        memory: Memory,
+        descriptor: Int32,
+        namePointer: Int32,
+        nameLength: Int32,
+        valuePointer: Int32,
+        valueLength: Int32,
+        domainPointer: Int32,
+        domainLength: Int32
+    ) -> Int32 {
+        guard let webViewHandler = store.fetch(from: descriptor) as? WebViewHandler
+        else { return Result.invalidHandler.rawValue }
+
+        let name: String? = if namePointer >= 0, nameLength > 0 {
+            try? memory.readString(offset: UInt32(namePointer), length: UInt32(nameLength))
+        } else {
+            nil
+        }
+        let value: String? = if valuePointer >= 0, valueLength > 0 {
+            try? memory.readString(offset: UInt32(valuePointer), length: UInt32(valueLength))
+        } else {
+            nil
+        }
+        let domain: String? = if domainPointer >= 0, domainPointer > 0 {
+            try? memory.readString(offset: UInt32(domainPointer), length: UInt32(domainLength))
+        } else {
+            nil
+        }
+
+        let success = BlockingTask {
+            if let name {
+                let cookies = await webViewHandler.cookieStore.allCookies()
+                guard let cookie = cookies.first(where: {
+                    let nameMatches = $0.name == name
+                    let valueMatches = value == nil || $0.value == value
+                    let domainMatches = domain == nil || $0.domain == domain
+                    return nameMatches && valueMatches && domainMatches
+                }) else { return false }
+                await webViewHandler.cookieStore.deleteCookie(cookie)
+                return true
+            } else if nameLength == -1 {
+                await webViewHandler.webView.configuration.websiteDataStore.clearRecords()
+                return true
+            }
+            return false
+        }
+        .get()
+
+        return success ? Result.success.rawValue : Result.missingCookie.rawValue
     }
 }
