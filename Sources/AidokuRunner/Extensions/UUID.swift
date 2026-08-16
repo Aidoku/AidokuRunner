@@ -8,9 +8,9 @@
 import CryptoKit
 import Foundation
 
-extension UUID {
-    init(sourceKey: String) {
-        let data = Data(sourceKey.utf8)
+public extension UUID {
+    init(key: String) {
+        let data = Data(key.utf8)
         var bytes = Array(Insecure.SHA1.hash(data: data).prefix(16))
         // RFC 4122 UUID version 5
         bytes[6] = (bytes[6] & 0x0F) | 0x50

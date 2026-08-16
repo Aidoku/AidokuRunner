@@ -7,7 +7,15 @@
 
 import WebKit
 
-extension WKWebsiteDataStore {
+public extension WKWebsiteDataStore {
+    static func forSource(key: String) -> WKWebsiteDataStore {
+        if #available(iOS 17.0, *) {
+            self.init(forIdentifier: UUID(key: key))
+        } else {
+            Self.nonPersistent()
+        }
+    }
+
     func clearRecords() async {
         await withCheckedContinuation { continuation in
             fetchDataRecords(ofTypes: Self.allWebsiteDataTypes()) { records in

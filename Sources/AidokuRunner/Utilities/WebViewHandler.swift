@@ -24,11 +24,7 @@ class WebViewHandler: NSObject {
 
     init(id: String) {
         let config = WKWebViewConfiguration()
-        if #available(iOS 17.0, *) {
-            config.websiteDataStore = .init(forIdentifier: UUID(sourceKey: id))
-        } else {
-            config.websiteDataStore = .nonPersistent()
-        }
+        config.websiteDataStore = .forSource(key: id)
         self.webView = WKWebView(frame: .zero, configuration: config)
         super.init()
         webView.navigationDelegate = self
