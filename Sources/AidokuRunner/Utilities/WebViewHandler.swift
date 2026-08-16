@@ -13,6 +13,7 @@ class WebViewHandler: NSObject {
 
     private let loadedSemaphore = DispatchSemaphore(value: 0)
     private var continuations: [String: CheckedContinuation<Any?, Error>] = [:]
+    private var addedAsyncEvalHandler = false
 
     private static let asyncEvalHandlerName = "asyncEval"
 
@@ -38,8 +39,9 @@ class WebViewHandler: NSObject {
     func evaluateAsyncJavaScript(_ javaScriptString: String) async throws -> Any? {
         let callbackID = UUID().uuidString
 
-        if webView.configuration.userContentController.userScripts.isEmpty {
+        if !addedAsyncEvalHandler {
             webView.configuration.userContentController.add(self, name: Self.asyncEvalHandlerName)
+            addedAsyncEvalHandler = true
         }
 
         return try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Any?, Error>) in

@@ -85,6 +85,14 @@ extension AidokuRunnerTests {
             let rid2 = library.webViewEvalAsync(memory: memory, descriptor: wv, stringPointer: ptr, length: length)
             let result2 = store.fetch(from: rid2) as? String
             #expect(result2 == "async test")
+
+            let rid3 = library.contextEvalAsync(memory: memory, descriptor: ctx, stringPointer: ptr, length: length)
+            let result3 = store.fetch(from: rid3) as? String
+            #expect(result3 == "async test")
+
+            let rid4 = library.webViewEvalAsync(memory: memory, descriptor: wv, stringPointer: ptr, length: length)
+            let result4 = store.fetch(from: rid4) as? String
+            #expect(result4 == "async test")
         }
 
         // rule list blocking
@@ -153,6 +161,7 @@ extension AidokuRunnerTests {
                 urlStringPointer: -1,
                 urlLength: 0
             ) == 0)
+            #expect(library.webViewWaitForLoad(descriptor: wv) == 0)
 
             let rid2 = library.webViewEval(memory: memory, descriptor: wv, stringPointer: jsPtr, length: jsLength)
             let result2 = store.fetch(from: rid2) as? String
