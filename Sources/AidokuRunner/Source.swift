@@ -180,7 +180,6 @@ public final class Source: Sendable {
     }
 
     public func clearCache() async {
-        guard #available(iOS 17.0, *) else { return }
         await WKWebsiteDataStore.forSource(key: key).clearRecords()
     }
 
