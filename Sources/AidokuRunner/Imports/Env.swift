@@ -25,8 +25,7 @@ struct Env: SourceLibrary {
 
 extension Env {
     func abort() {
-        printHandler("Aborted")
-        Wasm3.yieldNext()
+        // no special handling necessary; left for compatibility with older aidoku-rs versions
     }
 
     func envPrint(memory: Memory, offset: Int32, length: Int32) {

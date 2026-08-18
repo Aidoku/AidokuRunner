@@ -23,13 +23,15 @@ public struct InterpreterConfiguration: Sendable {
 
 public actor Interpreter {
     private let sourceKey: String
-    internal var module: Module
-    private let store = GlobalStore()
+    private let bytes: [UInt8]
+    private let stackSize: UInt32
     private let config: InterpreterConfiguration
 
-    public let features: SourceFeatures
+    private var module: Module
+    private var store: GlobalStore
+    private var partialValueHandler: CallbackHandler
 
-    private let partialValueHandler = CallbackHandler()
+    public let features: SourceFeatures
 
     public let partialHomePublisher: SinglePublisher<Home>? = .init()
     public let partialMangaPublisher: SinglePublisher<Manga>? = .init()
@@ -41,35 +43,12 @@ public actor Interpreter {
         config: InterpreterConfiguration = .init()
     ) async throws {
         self.sourceKey = sourceKey
-        let env = try Environment()
-        let runtime = try env.createRuntime(stackSize: stackSize)
-        module = try runtime.parseAndLoadModule(bytes: bytes)
+        self.bytes = bytes
+        self.stackSize = stackSize
         self.config = config
 
-        // import functions (must be done before calling findFunction)
-        let printHandler = config.printHandler ?? { print($0) }
-        Env(
-            module: module,
-            partialValueHandler: partialValueHandler,
-            printHandler: printHandler
-        ).link()
-        Std(module: module, store: store).link()
-        Defaults(module: module, store: store, defaultNamespace: sourceKey).link()
-        Net(
-            module: module,
-            store: store,
-            requestHandler: config.requestHandler
-        ).link()
-        Html(module: module, store: store).link()
-        JavaScript(
-            module: module,
-            store: store,
-            printHandler: printHandler,
-            webViewNamespace: sourceKey
-        ).link()
-#if canImport(UIKit)
-        Canvas(module: module, store: store).link()
-#endif
+        self.module = try Self.createModule(bytes: bytes, stackSize: stackSize)
+        (self.store, self.partialValueHandler) = Self.linkImports(to: module, sourceKey: sourceKey, config: config)
 
         let providesListings = (try? module.findFunction(name: "get_manga_list")) != nil
         let providesHome = (try? module.findFunction(name: "get_home")) != nil
@@ -108,11 +87,60 @@ public actor Interpreter {
         try start()
     }
 
+    private static func createModule(bytes: [UInt8], stackSize: UInt32) throws -> Module {
+        let env = try Environment()
+        let runtime = try env.createRuntime(stackSize: stackSize)
+        return try runtime.parseAndLoadModule(bytes: bytes)
+    }
+
+    private static func linkImports(
+        to module: Module,
+        sourceKey: String,
+        config: InterpreterConfiguration
+    ) -> (GlobalStore, CallbackHandler) {
+        let store = GlobalStore()
+        let partialValueHandler = CallbackHandler()
+        let printHandler = config.printHandler ?? { print($0) }
+        Env(
+            module: module,
+            partialValueHandler: partialValueHandler,
+            printHandler: printHandler
+        ).link()
+        Std(module: module, store: store).link()
+        Defaults(
+            module: module,
+            store: store,
+            defaultNamespace: sourceKey
+        ).link()
+        Net(
+            module: module,
+            store: store,
+            requestHandler: config.requestHandler
+        ).link()
+        Html(module: module, store: store).link()
+        JavaScript(
+            module: module,
+            store: store,
+            printHandler: printHandler,
+            webViewNamespace: sourceKey
+        ).link()
+#if canImport(UIKit)
+        Canvas(module: module, store: store).link()
+#endif
+        return (store, partialValueHandler)
+    }
+
     private func start() throws {
         let function = try? module.findFunction(name: "start")
         if let function {
             try function.call()
         }
+    }
+
+    func restart() throws {
+        self.module = try Self.createModule(bytes: bytes, stackSize: stackSize)
+        (self.store, self.partialValueHandler) = Self.linkImports(to: module, sourceKey: sourceKey, config: config)
+        try start()
     }
 }
 

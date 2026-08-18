@@ -1,5 +1,5 @@
 {
-  "originHash" : "786ea7661424eb3ab3127d77f910b441647ff35155f787eb758ea287af547d47",
+  "originHash" : "22b658960b0752a32814aa36f18b13f695b5375bebcc5e4877c5f90e848a7aa5",
   "pins" : [
     {
       "identity" : "swiftlintplugins",
@@ -25,7 +25,7 @@
       "location" : "https://github.com/Skittyblock/Wasm3",
       "state" : {
         "branch" : "main",
-        "revision" : "8c0e4ef3dec8e88a94c19959c3fe100cf50c548b"
+        "revision" : "6a64d8bfc6a235f1ee3f8b57f692494fbf72ed19"
       }
     }
   ],

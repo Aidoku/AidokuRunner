@@ -1,6 +1,6 @@
 @testable import AidokuRunner
-import Testing
 import Foundation
+import Testing
 import Wasm3
 
 struct AidokuRunnerTests {
@@ -41,15 +41,30 @@ struct AidokuRunnerTests {
         #expect(source.name == "Test")
         #expect(source.version == 1)
     }
+
+    @Test func testSourcePanic() async throws {
+        let source = try await self.source()
+        await #expect(throws: Wasm3Error.trap(.unreachable)) {
+            try await source.getMangaUpdate(manga: .init(sourceKey: "", key: "", title: ""), needsDetails: false, needsChapters: false)
+        }
+        await #expect(throws: Wasm3Error.runtimeDisabled) {
+            try await source.getHome()
+        }
+        try await source.restart()
+        _ = try await source.getHome() // should not throw after restart
+    }
 }
 
 extension AidokuRunnerTests {
     @Test func testJavascript() async throws {
         let (runtime, module) = try module()
         let store = GlobalStore()
-        let library = JavaScript(module: module, store: store, printHandler: {
-            print("JS Print:", $0)
-        })
+        let library = JavaScript(
+            module: module,
+            store: store,
+            printHandler: { print("JS Print:", $0) },
+            webViewNamespace: "test"
+        )
 
         let ctx = library.contextCreate()
         let wv = library.webViewCreate()

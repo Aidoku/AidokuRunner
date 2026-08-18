@@ -179,6 +179,13 @@ public final class Source: Sendable {
         loadSettingsDefaults(settings: settings)
     }
 
+    @discardableResult
+    public func restart() async throws -> Bool {
+        guard let runner = runner as? Interpreter else { return false }
+        try await runner.restart()
+        return true
+    }
+
     public func clearCache() async {
         await WKWebsiteDataStore.forSource(key: key).clearRecords()
     }
