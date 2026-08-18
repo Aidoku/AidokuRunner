@@ -12,4 +12,10 @@ public enum SourceError: Error, Equatable {
     case unimplemented
     case networkError
     case message(String)
+    case htmlError
+    case jsError
+    case canvasError
+    case utf8Error
+    case jsonParseError
+    case deserializeError
 }

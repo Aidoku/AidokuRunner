@@ -442,6 +442,12 @@ private extension Interpreter {
             switch result {
                 case -2: throw SourceError.unimplemented
                 case -3: throw SourceError.networkError
+                case -4: throw SourceError.htmlError
+                case -5: throw SourceError.jsError
+                case -6: throw SourceError.canvasError
+                case -7: throw SourceError.utf8Error
+                case -8: throw SourceError.jsonParseError
+                case -9: throw SourceError.deserializeError
                 default: throw SourceError.missingResult
             }
         }
