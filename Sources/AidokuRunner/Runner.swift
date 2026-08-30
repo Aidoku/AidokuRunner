@@ -20,6 +20,7 @@ public protocol Runner: Sendable {
     func getMangaList(listing: Listing, page: Int) async throws -> MangaPageResult
     func getHome() async throws -> Home
     func processPageImage(response: Response, context: PageContext?) async throws -> PlatformImage?
+    func processCoverImage(response: Response) async throws -> PlatformImage?
     func getSearchFilters() async throws -> [Filter]
     func getSettings() async throws -> [Setting]
     func getListings() async throws -> [Listing]
@@ -51,6 +52,10 @@ public extension Runner {
     }
 
     func processPageImage(response _: Response, context _: PageContext?) throws -> PlatformImage? {
+        throw SourceError.unimplemented
+    }
+
+    func processCoverImage(response _: Response) throws -> PlatformImage? {
         throw SourceError.unimplemented
     }
 

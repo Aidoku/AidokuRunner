@@ -56,6 +56,7 @@ public actor Interpreter {
         let dynamicSettings = (try? module.findFunction(name: "get_settings")) != nil
         let dynamicListings = (try? module.findFunction(name: "get_listings")) != nil
         let processesPages = (try? module.findFunction(name: "process_page_image")) != nil
+        let processesCovers = (try? module.findFunction(name: "process_cover_image")) != nil
         let providesImageRequests = (try? module.findFunction(name: "get_image_request")) != nil
         let providesPageDescriptions = (try? module.findFunction(name: "get_page_description")) != nil
         let providesAlternateCovers = (try? module.findFunction(name: "get_alternate_covers")) != nil
@@ -73,6 +74,7 @@ public actor Interpreter {
             dynamicSettings: dynamicSettings,
             dynamicListings: dynamicListings,
             processesPages: processesPages,
+            processesCovers: processesCovers,
             providesImageRequests: providesImageRequests,
             providesPageDescriptions: providesPageDescriptions,
             providesAlternateCovers: providesAlternateCovers,
@@ -280,6 +282,18 @@ extension Interpreter: Runner {
             }
         }
         let result: Int32 = try function.call(responsePointer, contextPointer)
+        let data = try handleResult(result: result)
+        let imageRef = try PostcardDecoder().decode(ImageRef.self, from: data)
+        let finalImage = store.fetch(from: imageRef) as? PlatformImage
+        store.remove(at: imageRef)
+        return finalImage
+    }
+
+    public func processCoverImage(response: Response) throws -> PlatformImage? {
+        let function = try module.findFunction(name: "process_cover_image")
+        let responsePointer = try store.storeEncoded(response)
+        defer { store.remove(at: responsePointer) }
+        let result: Int32 = try function.call(responsePointer)
         let data = try handleResult(result: result)
         let imageRef = try PostcardDecoder().decode(ImageRef.self, from: data)
         let finalImage = store.fetch(from: imageRef) as? PlatformImage

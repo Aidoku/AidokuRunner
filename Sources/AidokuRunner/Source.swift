@@ -387,6 +387,14 @@ public extension Source {
         }
     }
 
+    func processCoverImage(response: Response) async throws -> PlatformImage? {
+        if runner.features.processesCovers {
+            try await runner.processCoverImage(response: response)
+        } else {
+            nil
+        }
+    }
+
     func getListings() async throws -> [Listing] {
         if runner.features.dynamicListings {
             staticListings + (try await runner.getListings())

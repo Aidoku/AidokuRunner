@@ -14,6 +14,7 @@ public struct SourceFeatures: Sendable {
     public let dynamicSettings: Bool
     public let dynamicListings: Bool
     public let processesPages: Bool
+    public let processesCovers: Bool
     public let providesImageRequests: Bool
     public let providesPageDescriptions: Bool
     public let providesAlternateCovers: Bool
@@ -31,6 +32,7 @@ public struct SourceFeatures: Sendable {
         dynamicSettings: Bool = false,
         dynamicListings: Bool = false,
         processesPages: Bool = false,
+        processesCovers: Bool = false,
         providesImageRequests: Bool = false,
         providesPageDescriptions: Bool = false,
         providesAlternateCovers: Bool = false,
@@ -47,6 +49,7 @@ public struct SourceFeatures: Sendable {
         self.dynamicSettings = dynamicSettings
         self.dynamicListings = dynamicListings
         self.processesPages = processesPages
+        self.processesCovers = processesCovers
         self.providesImageRequests = providesImageRequests
         self.providesPageDescriptions = providesPageDescriptions
         self.providesAlternateCovers = providesAlternateCovers
