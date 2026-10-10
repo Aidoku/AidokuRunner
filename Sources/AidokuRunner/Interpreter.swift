@@ -285,7 +285,9 @@ extension Interpreter: Runner {
         let data = try handleResult(result: result)
         let imageRef = try PostcardDecoder().decode(ImageRef.self, from: data)
         let finalImage = store.fetch(from: imageRef) as? PlatformImage
-        store.remove(at: imageRef)
+        if imageRef != response.image {
+            store.remove(at: imageRef)
+        }
         return finalImage
     }
 
@@ -297,7 +299,9 @@ extension Interpreter: Runner {
         let data = try handleResult(result: result)
         let imageRef = try PostcardDecoder().decode(ImageRef.self, from: data)
         let finalImage = store.fetch(from: imageRef) as? PlatformImage
-        store.remove(at: imageRef)
+        if imageRef != response.image {
+            store.remove(at: imageRef)
+        }
         return finalImage
     }
 
